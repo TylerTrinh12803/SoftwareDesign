@@ -1,0 +1,89 @@
+/* Register.css */
+
+/* Set the background image for the register page */
+.register-container {
+    display: flex;
+    justify-content: center;    /* Center horizontally */
+    align-items: center;        /* Center vertically */
+    height: 100vh;              /* Full viewport height */
+    background-image: url('../assets/43052.jpg');
+    background-size: 90%;       /* Shrinks the background image to 90% of its original size */
+    background-position: center center; /* Keep the image centered */
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Keeps the background fixed while scrolling */
+    color: white;
+    font-family: Arial, sans-serif;
+}  
+
+/* The register form itself with a fixed width */
+.register-form {
+    background-color: rgba(0, 0, 0, 0.8);  /* Solid background */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    width: 400px;    /* Fixed width */
+    max-width: 400px; /* Prevents it from expanding */
+    margin: 0;
+}
+
+/* Styling for the register form input fields */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Error message styling */
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Submit button (Register button) */
+.submit-button {
+    background-color: #3681d1;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #3681d1;
+}
+
+/* Back to login link */
+.back-to-login {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.back-to-login p {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.link-button {
+    color: #3681d1;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.link-button:hover {
+    text-decoration: underline;
+}
