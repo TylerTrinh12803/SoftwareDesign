@@ -1,61 +1,132 @@
+/* Main Notification Container */
 .notification-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: auto;  /* Changed from 100vh to auto to accommodate varying content sizes */
-    min-height: 100vh;  /* Ensures it still fills the viewport height */
-    padding-top: 50px;  /* Adds space on top to avoid overlap with a header */
-    background-image: url('../assets/43052.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    color: white;
-    font-family: Arial, sans-serif;
-    text-shadow: 0px 0px 8px rgba(0, 0, 0, 0.8);
-    overflow: auto;  /* Allows scrolling if content exceeds screen size */
-}
-
-.notification-card {
-    background-color: rgba(0, 0, 0, 0.75);
+    max-width: 600px;
+    margin: 20px auto;
+    background: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
     padding: 20px;
-    margin-bottom: 20px;  /* Ensures adequate spacing between notifications */
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    width: 90%;
-    max-width: 500px;
-    z-index: 100;  /* Ensures it's above other content, adjust as needed */
-}
-.notification-card:hover {
-    transform: scale(1.05);
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+    font-family: 'Arial', sans-serif;
+    color: white;
 }
 
-@media (max-width: 600px) {
-    .notification-card {
-        width: 100%;
-        padding: 15px;
-    }
-}
-
-/* Styling for notification details inside the card */
-.notification-item {
+/* Notification Header */
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
     margin-bottom: 15px;
 }
 
-.notification-item label, .notification-item p {
-    margin-bottom: 5px;
-    font-size: 16px;
+/* Notification Count Badge */
+.notification-count {
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
 }
 
+/* "Mark All as Read" Link */
+.mark-read {
+    font-size: 0.9rem;
+    color: #007bff;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.mark-read:hover {
+    color: #0056b3;
+}
+
+/* Individual Notification Item */
+.notification-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent */
+    margin-bottom: 10px;
+    transition: background 0.3s;
+}
+
+.notification-item.unread {
+    background-color: rgba(255, 255, 255, 0.2); /* Highlight unread */
+}
+
+.notification-item:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Notification Content */
+.notification-content {
+    flex-grow: 1;
+}
+
+/* Notification Title */
+.notification-content h4 {
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Notification Message */
+.notification-content p {
+    font-size: 0.9rem;
+    color: white;
+    margin: 5px 0;
+}
+
+/* Time Stamp */
+.notification-time {
+    font-size: 0.8rem;
+    color: #ddd;
+}
+
+/* Red Dot for Unread Notifications */
+.unread-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #0056b3;
+    border-radius: 50%;
+    margin-left: 5px;
+}
+
+/* Dismiss Button */
+.dismiss-btn {
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.dismiss-btn:hover {
+    background-color: #044182;
+}
+
+/* "Back to Home" Button */
 .link-button {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 200;  /* Higher z-index to ensure it's always clickable and visible */
+    display: block;
+    text-align: center;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 15px;
+    transition: background 0.3s ease;
 }
 
 .link-button:hover {
-    background-color: #2a6ba8;
+    background-color: #0056b3;
 }

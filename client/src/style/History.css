@@ -1,7 +1,7 @@
 /* Set Background Image */
 body {
     font-family: Arial, sans-serif;
-    background: url('../assets/addbf.jpg') no-repeat center center fixed;
+    background-image: url('../assets/addbf.jpg');
     background-size: cover; /* Cover entire page */
     margin: 0;
     padding: 0;

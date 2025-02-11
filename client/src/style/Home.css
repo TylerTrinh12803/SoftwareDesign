@@ -6,7 +6,8 @@ body {
     padding: 0;
 }
 
-/* Navbar */
+/* Navbar Layout */
+/* Navbar Layout */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -14,7 +15,141 @@ body {
     padding: 15px 10%;
     background: white;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
+
+/* Logout Button - Move to Top Right */
+.logout-container {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+.btn-logout {
+    padding: 8px 15px;
+    border: 2px solid #0056b3;
+    background-color: white;
+    color: #0056b3;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* Hover Effect for Logout */
+.btn-logout:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+/* Profile Icon */
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-image: url('../assets/pfp.png');
+    background-size: cover;
+    background-position: center;
+    display: block;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+/* Profile Hover Effect */
+.profile-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Notification Icon */
+.notification-icon {
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+.notification-icon:hover {
+    color: #0056b3;
+}
+
+/* Navbar Right Section */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* User Name Styling */
+.user-name {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Notification Icon */
+.notification-icon {
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+.notification-icon:hover {
+    color: #0056b3;
+}
+
+/* Your Profile Button */
+/* Profile and Logout Button - Same Size */
+.btn-outline {
+    padding: 10px 15px;
+    border: 2px solid #007bff;
+    background-color: white;
+    color: #007bff;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    font-size: 1rem; /* Ensures both buttons have the same text size */
+    min-width: 120px; /* Ensures both buttons are the same width */
+    text-align: center;
+    display: inline-block;
+}
+
+/* Button Hover Effect */
+.btn-outline:hover {
+    background-color: #007bff;
+    color: white;
+}
+/* Profile Icon */
+.profile-icon {
+    width: 40px; /* Set width */
+    height: 40px; /* Set height */
+    border-radius: 50%; /* Make it circular */
+    background-image: url('../assets/pfp.png'); /* Import the image here */
+    background-size: cover;
+    background-position: center;
+    display: block;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.profile-icon:hover {
+    transform: scale(1.1); /* Slight zoom effect on hover */
+}
+
+
+/* Notification Icon */
+.notification-icon {
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+.notification-icon:hover {
+    color: #0056b3;
+}
+
 
 .navbar .logo {
     font-size: 1.5rem;
@@ -221,3 +356,100 @@ body {
     margin-bottom: 20px;
 }
 
+/* Default Notification Icon */
+.notification-icon {
+    position: relative;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #f4b400; /* Yellow bell color */
+    transition: color 0.3s ease;
+}
+
+/* Ringing Animation (When There Are Unread Notifications) */
+@keyframes ring {
+    0% { transform: rotate(0); }
+    15% { transform: rotate(-15deg); }
+    30% { transform: rotate(15deg); }
+    45% { transform: rotate(-10deg); }
+    60% { transform: rotate(10deg); }
+    75% { transform: rotate(-5deg); }
+    100% { transform: rotate(0); }
+}
+
+/* Apply Animation When There Are Notifications */
+.ringing {
+    animation: ring 0.5s infinite;
+    color: red !important; /* Turns red when ringing */
+}
+
+/* Notification Badge */
+.notification-icon::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 5px; /* Adjust this */
+    right: 5px; /* Adjust this */
+    display: none; /* Hide by default */
+}
+
+/* Show Badge Only When There Are Notifications */
+.ringing::after {
+    display: block;
+}
+
+/* Admin Controls Container */
+.admin-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Edit and Delete Buttons (Using Background Image) */
+.edit-btn, .delete-btn {
+    width: 30px;
+    height: 30px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    border: none;
+    background-color: transparent; /* No background */
+    transition: transform 0.2s ease;
+}
+
+/* Edit Button (Pen Icon) */
+.edit-btn {
+    background-image: url('../assets/pen.png'); /* Import edit icon */
+}
+
+/* Delete Button (Trash Bin Icon) */
+.delete-btn {
+    background-image: url('../assets/trash-bin.png'); /* Import delete icon */
+}
+
+/* Hover Effects */
+.edit-btn:hover, .delete-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Add Event Button */
+.add-btn {
+    width: 40px;
+    height: 40px;
+    background-image: url('../assets/add.png'); /* Import add event icon */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    transition: transform 0.2s ease;
+}
+
+/* Hover Effect */
+.add-btn:hover {
+    transform: scale(1.1);
+}
