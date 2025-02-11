@@ -120,9 +120,8 @@ const Register = () => {
         {/* Back to login link */}
         <div className="back-to-login">
           <p>Already have an account?</p>
-          <Link to="/login" className="link-button">Back to Login</Link>
+          <Link to="/login" className="auth-link">Login</Link>
         </div>
-
         {/* Back to Home Button */}
         <div className="back-to-home">
           <Link to="/" className="home-button">Back to Home</Link>

@@ -1,0 +1,61 @@
+.notification-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: auto;  /* Changed from 100vh to auto to accommodate varying content sizes */
+    min-height: 100vh;  /* Ensures it still fills the viewport height */
+    padding-top: 50px;  /* Adds space on top to avoid overlap with a header */
+    background-image: url('../assets/43052.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-shadow: 0px 0px 8px rgba(0, 0, 0, 0.8);
+    overflow: auto;  /* Allows scrolling if content exceeds screen size */
+}
+
+.notification-card {
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 20px;
+    margin-bottom: 20px;  /* Ensures adequate spacing between notifications */
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 500px;
+    z-index: 100;  /* Ensures it's above other content, adjust as needed */
+}
+.notification-card:hover {
+    transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+    .notification-card {
+        width: 100%;
+        padding: 15px;
+    }
+}
+
+/* Styling for notification details inside the card */
+.notification-item {
+    margin-bottom: 15px;
+}
+
+.notification-item label, .notification-item p {
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.link-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 200;  /* Higher z-index to ensure it's always clickable and visible */
+}
+
+.link-button:hover {
+    background-color: #2a6ba8;
+}

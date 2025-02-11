@@ -1,0 +1,95 @@
+/* Set the background image for the Volunteer Matching Form page */
+.match-form-container {
+    position: relative; /* Needed for absolute positioning of children */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-image: url('../assets/43052.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+/* Styling for the Volunteer Matching Form itself with a fixed width */
+.volunteer-form {
+    background-color: rgba(0, 0, 0, 0.75); /* Adjust opacity as needed */
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    width: 90%;  /* Responsive width */
+    max-width: 500px; /* Max width to prevent it from becoming too large on wider screens */
+}
+
+@media (max-width: 600px) {
+    .volunteer-form {
+        padding: 20px;
+        width: 100%;
+    }
+}
+
+/* Styling for the form input fields */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input-group select, .input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Error message styling */
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Submit button styling */
+.submit-button {
+    background-color: #3681d1;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.submit-button:hover {
+    background-color: #2a6ba8; /* Darker shade on hover */
+}
+
+/* Link button styles, similar to the back to login link */
+.link-button {
+    position: absolute; /* Positions the link relative to its nearest positioned ancestor */
+    top: 20px; /* 20px from the top of the container */
+    right: 20px; /* 20px from the right of the container */
+    color: #fff;
+    background-color: #3681d1;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: block;
+    transition: background-color 0.3s, color 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.link-button:hover {
+    background-color: #2a6ba8;
+    
+}

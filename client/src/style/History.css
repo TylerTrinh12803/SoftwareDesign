@@ -1,0 +1,35 @@
+/* Set Background Image */
+body {
+    font-family: Arial, sans-serif;
+    background: url('../assets/addbf.jpg') no-repeat center center fixed;
+    background-size: cover; /* Cover entire page */
+    margin: 0;
+    padding: 0;
+}
+
+/* Container Styling */
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: rgba(255, 255, 255, 0.9); /* Slight transparency for readability */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+/* Table Header Styling */
+th {
+    background-color: #3681d1 !important;
+    color: white !important;
+}
