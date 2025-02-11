@@ -1,0 +1,223 @@
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fd;
+    margin: 0;
+    padding: 0;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10%;
+    background: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #3681d1;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #3681d1;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #3681d1;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #3681d1;
+}
+
+.btn-outline {
+    border: 2px solid #3681d1;
+    color: #3681d1;
+    background: white;
+}
+
+.btn-outline:hover {
+    background-color: #3681d1;
+    color: white;
+}
+
+/* Hero Section */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 80px 10%;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 40px auto;
+    max-width: 1200px;
+}
+
+.hero-content {
+    max-width: 50%;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #3681d1;
+    margin-bottom: 15px;
+}
+
+.hero-text {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.hero-img img {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Events Section */
+.events-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.events-container h2 {
+    text-align: center;
+    color: #3681d1;
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.event {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.event:last-child {
+    border-bottom: none;
+}
+
+.event-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.event-date {
+    color: #3681d1;
+    font-weight: 500;
+}
+
+.event-description {
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .hero-content {
+        max-width: 100%;
+    }
+
+    .hero-img img {
+        max-width: 300px;
+        margin-top: 20px;
+    }
+
+    .navbar {
+        flex-direction: column;
+    }
+}
+
+/* Logo Styling - Bigger Logo Without Affecting Navbar */
+.logo-img {
+    height: 80px;  /* Increase height */
+    max-width: 150px; /* Ensure it does not overflow */
+    object-fit: contain; /* Keep proportions */
+    transform: scale(1.5); /* Scale up the logo without affecting layout */
+}
+
+/* Upcoming Events Section - Background Blue */
+.events-section {
+    background-color: #3681d1; /* Blue background */
+    padding: 50px 0; /* Add padding for spacing */
+    display: flex;
+    justify-content: center;
+}
+
+/* Events Container - White Background */
+.events-container {
+    max-width: 1100px;
+    width: 90%;
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Events Title */
+.events-title {
+    text-align: center;
+    color: white; /* White text for contrast */
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Upcoming Events Section - Background Blue */
+.events-section {
+    background-color: #367cd7; /* Blue background */
+    padding: 50px 0; /* Add padding for spacing */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    text-align: center; /* Center text */
+}
+
+/* Events Title */
+.events-title {
+    color: white; /* White text for contrast */
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+

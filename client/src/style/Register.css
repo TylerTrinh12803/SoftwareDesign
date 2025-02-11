@@ -87,3 +87,35 @@
 .link-button:hover {
     text-decoration: underline;
 }
+
+/* Back to Home Button */
+.back-to-home {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.home-button {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 30px;
+    background-color: #3681d1;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.home-button:hover {
+    background-color: #3681d1;
+}
+
+.input-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: white;
+    cursor: pointer;
+}
+

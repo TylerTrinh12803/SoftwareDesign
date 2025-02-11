@@ -1,21 +1,21 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Home from "./pages/Home";
+import Add from "./pages/Add";
+import Update from "./pages/Update";
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          {/* Redirect from root ("/") to /login */}
-          <Route path="/" element={<Navigate to="/login" />} />
-          
-          {/* Define other routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/add" element={<Add />} />
+        <Route path="/update" element={<Update />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

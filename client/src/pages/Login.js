@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate for redirection
+import { Link, useNavigate } from 'react-router-dom';
 import '../style/Login.css';
 
-const Login = () => {
-  const [username, setUsername] = useState('');
+const Login = ({ onLogin }) => { // Accept `onLogin` callback as a prop
+  const [email, setEmail] = useState(''); // Changed to email
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate(); // For redirection after successful login
@@ -12,35 +12,54 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (username === '' || password === '') {
+    if (email === '' || password === '') {
       setError('Please fill in both fields');
-    } else {
-      setError('');
+      return;
+    }
 
-      // Send a POST request to your backend for authentication
-      try {
-        const response = await fetch('http://localhost:3360/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username, password }), // Sending username and password
-        });
+    setError('');
 
-        const data = await response.json();
+    // Send a POST request to your backend for authentication
+    try {
+      const response = await fetch('http://localhost:3360/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }), // Sending email instead of username
+      });
 
-        if (response.ok) {
-          // Assuming the response contains a valid user token or success message
-          console.log('Logged in successfully');
-          navigate('/home'); // Redirect to home page if login is successful
+      const data = await response.json();
+
+      if (response.ok) {
+        // Save authentication data to localStorage
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.userId);
+        localStorage.setItem('role', data.role);
+        localStorage.setItem('email', email);
+
+        // Call the `onLogin` callback to update parent state
+        if (onLogin) onLogin();
+
+        console.log('Logged in successfully as:', data.role);
+
+        // Redirect based on role
+        if (data.role === 'admin') {
+          navigate('/admin-dashboard'); // Redirect Admins
         } else {
-          // If login fails, show the error message
-          setError(data.message || 'Invalid username or password');
+          navigate('/user-dashboard'); // Redirect Regular Users
         }
-      } catch (error) {
-        console.error('Error:', error);
-        setError('An error occurred while logging in');
+      } else {
+        // Handle specific error messages
+        if (data.message === 'User not found') {
+          setError("This account doesn't exist");
+        } else if (data.message === 'Incorrect password') {
+          setError('The email or password is incorrect');
+        } 
       }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Invalid login credentials');
     }
   };
 
@@ -48,18 +67,17 @@ const Login = () => {
     <div className="login-container">
       <div className="form-container">
         <form onSubmit={handleSubmit} className="login-form">
-          {/* Login word inside the form */}
           <h2>Login</h2>
           
           <div className="input-group">
-            <label htmlFor="username">Username:</label>
+            <label htmlFor="email">Email:</label>
             <input
-              type="text"
-              id="username"
-              name="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              type="email"
+              id="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
             />
           </div>
           <div className="input-group">
@@ -79,6 +97,11 @@ const Login = () => {
           {/* Register link inside the same form */}
           <div className="register-link">
             <p>Don't have an account? <Link to="/register">Register here</Link></p>
+          </div>
+
+          {/* Back to Home Button */}
+          <div className="back-to-home">
+            <Link to="/" className="home-button">Back to Home</Link>
           </div>
         </form>
       </div>
