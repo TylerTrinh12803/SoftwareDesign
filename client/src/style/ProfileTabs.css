@@ -1,0 +1,100 @@
+/* Home Button Styling */
+.home-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* Space between icon and text */
+  cursor: pointer;
+  margin-bottom: 15px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  transition: 0.3s;
+  width: 100%;
+}
+
+
+.home-button:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Home Icon as Background */
+.home-logo {
+  width: 30px;
+  height: 30px;
+  background: url("../assets/home-button.png") no-repeat center center;
+  background-size: contain;
+}
+
+/* Sidebar Layout */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 240px;
+  height: 100vh;
+  background: #f0f0f0;
+  padding-top: 20px;
+  box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+/* Home Button */
+.sidebar-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.home-button {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 12px;
+  width: 90%;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.home-button:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.home-logo {
+  width: 25px;
+  height: 25px;
+  background: url("../assets/home-button.png") no-repeat center center;
+  background-size: contain;
+  margin-right: 10px;
+}
+
+/* Sidebar Menu Items */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.menu-item {
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.3s ease;
+}
+
+.menu-item:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.menu-item.active {
+  background: #007bff;
+  color: white;
+}
+
