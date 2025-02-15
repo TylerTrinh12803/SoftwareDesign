@@ -26,16 +26,15 @@
   background-size: contain;
 }
 
-/* Sidebar Layout */
 .sidebar {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 240px;
   height: 100vh;
-  background: #f0f0f0;
+  background: rgba(164, 200, 255, 0.292); /* Semi-transparent black */
   padding-top: 20px;
-  box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0px 10px rgba(10, 157, 255, 0.1);
   position: fixed;
   left: 0;
   top: 0;
