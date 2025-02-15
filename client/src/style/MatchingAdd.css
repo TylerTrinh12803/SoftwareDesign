@@ -1,0 +1,132 @@
+/* 🔹 Ensure Background is ONLY for MatchingAdd */
+.page-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+
+    /* ✅ Background applied ONLY to MatchingAdd */
+    background: url("../assets/—Pngtree—volunteer concept illustration flat earth_6684649.png") no-repeat center center;
+    background-size: 70%; /* Shrink background image */
+    background-position: center top -150px; /* Move the image UP */
+}
+
+
+/* 🔹 Forms Container */
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 200px; /* 🔹 Increase gap between forms (Default was 50px) */
+    margin-top: 20px;
+    width: 80%;
+}
+
+
+/* 🔹 Form Box */
+.form-box {
+    background: rgba(255, 255, 255, 0.85); /* Slight transparency for readability */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    text-align: center;
+}
+
+/* 🔹 Form Elements */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    margin-top: 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+/* 🔹 Skill Bubbles */
+.selected-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Adds spacing between bubbles */
+    margin-top: 10px;
+}
+
+/* 🔹 Entire bubble is clickable */
+.skill-bubble {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #007bff;
+    color: white;
+    padding: 8px 15px; /* Adjust padding for better appearance */
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+    min-width: 100px; /* Ensures bubble is big enough */
+    cursor: pointer; /* Shows it's clickable */
+    transition: background 0.3s ease-in-out;
+}
+
+/* 🔹 Hover effect to indicate clickability */
+.skill-bubble:hover {
+    background: #0056b3;
+}
+
+/* 🔹 Remove the small X button */
+.skill-bubble button {
+    display: none; /* Hide the button since the whole bubble is clickable */
+}
+.selected-volunteers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Adds spacing between bubbles */
+    margin-top: 10px;
+}
+
+.volunteer-bubble {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+    min-width: 100px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.volunteer-bubble:hover {
+    background: #0056b3;
+}

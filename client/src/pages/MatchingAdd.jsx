@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/MatchingAdd.css";
 
-const Update = () => {
+const MatchingAdd = () => {
   const navigate = useNavigate();
 
   // Event Form State
@@ -175,4 +175,4 @@ const Update = () => {
   );  
 };
 
-export default Update;
+export default MatchingAdd;

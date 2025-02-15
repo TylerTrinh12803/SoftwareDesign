@@ -34,6 +34,7 @@ const mockData = [
 
 function History() {
   return (
+    <div className="history-page">
     <div className="container">
       <h2>Volunteer History</h2>
       <table>
@@ -62,6 +63,7 @@ function History() {
           ))}
         </tbody>
       </table>
+    </div>
     </div>
   );
 }

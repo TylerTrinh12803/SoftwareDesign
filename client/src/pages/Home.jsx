@@ -44,11 +44,6 @@ const Home = () => {
         setNotifications(0); // Update state to re-render component
     };
 
-    // Navigate to Add Event Form
-    const addEvent = () => {
-        navigate("/add");
-    };
-
     // Admin-Only: Delete Event
     const handleDelete = (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this event?");
@@ -112,7 +107,7 @@ const Home = () => {
                 {/* Admin-Only Controls */}
                 {user?.role === "admin" && (
                     <div className="admin-controls">
-                         <button className="add-btn" onClick={() => navigate("/add")}></button>
+                         <button className="add-btn" onClick={() => navigate("/eventandmatch")}></button>
                     </div>
                 )}
 
