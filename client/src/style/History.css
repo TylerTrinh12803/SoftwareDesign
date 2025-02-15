@@ -7,15 +7,27 @@ body {
     padding: 0;
 }
 
-/* Container Styling */
 .container {
     max-width: 800px;
-    margin: 20px auto;
+    width: 100%;
     background: rgba(255, 255, 255, 0.9); /* Slight transparency for readability */
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+    /* Centering with Flexbox */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* Adjust positioning */
+    position: absolute;
+    top: 50%;
+    left: 60%; /* Shift it slightly to the right */
+    transform: translate(-50%, -50%);
 }
+
 
 /* Table Styling */
 table {
