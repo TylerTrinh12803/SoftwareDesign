@@ -21,30 +21,34 @@ const Notification = () => {
     };
 
     return (
-        <div className="notification-container">
-            {/* Header with Notification Count */}
-            <div className="notification-header">
-                <span>Notifications <span className="notification-count">{notifications.length}</span></span>
-                {notifications.length > 0 && <span className="mark-read" onClick={dismissAllNotifications}>Dismiss All</span>}
-            </div>
+        <div className="page-container">
+            {/* Back to Home Button - Positioned on Top Right */}
+            <button className="back-home-button" onClick={() => window.location.href = "/"}>
+                Back to Home
+            </button>
 
-            {/* Notification List */}
-            {notifications.length > 0 ? notifications.map(notification => (
-                <div key={notification.id} className="notification-item">
-                    <div className="notification-content">
-                        <h4>{notification.title}</h4>
-                        <p>{notification.message}</p>
+            <div className="notification-container">
+                {/* Header with Notification Count */}
+                <div className="notification-header">
+                    <span>Notifications <span className="notification-count">{notifications.length}</span></span>
+                    {notifications.length > 0 && <span className="mark-read" onClick={dismissAllNotifications}>Dismiss All</span>}
+                </div>
+
+                {/* Notification List */}
+                {notifications.length > 0 ? notifications.map(notification => (
+                    <div key={notification.id} className="notification-item">
+                        <div className="notification-content">
+                            <h4>{notification.title}</h4>
+                            <p>{notification.message}</p>
+                        </div>
+                        <button className="dismiss-btn" onClick={() => dismissNotification(notification.id)}>Dismiss</button>
                     </div>
-                    <button className="dismiss-btn" onClick={() => dismissNotification(notification.id)}>Dismiss</button>
-                </div>
-            )) : (
-                <div className="notification-item">
-                    <p>No new notifications.</p>
-                </div>
-            )}
-
-            {/* Back to Home Button */}
-            <a href="/" className="link-button">Back to Home</a>
+                )) : (
+                    <div className="notification-item">
+                        <p>No new notifications.</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
