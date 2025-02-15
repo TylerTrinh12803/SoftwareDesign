@@ -5,14 +5,15 @@ import Profile from "./Profile";
 import "../style/ProfileTabs.css";
 
 function ProfileTabs() {
-  const [activeTab, setActiveTab] = useState("history");
+  // Set "profile" as the default active tab instead of "history"
+  const [activeTab, setActiveTab] = useState("profile");
   const navigate = useNavigate();
 
   return (
     <div className="profile-tabs-container">
       {/* Unified Content Wrapper */}
       <div className="content-wrapper">
-      <div className="sidebar">
+        <div className="sidebar">
           <div className="sidebar-header">
             <div className="home-button" onClick={() => navigate("/")}>
               <div className="home-logo"></div>
@@ -35,11 +36,11 @@ function ProfileTabs() {
             </div>
           </div>
         </div>
-        
+
         {/* Content Area Inside Same Box */}
         <div className="tab-content">
           <div className="content-box">
-            {activeTab === "history" ? <History /> : <Profile />}
+            {activeTab === "profile" ? <Profile /> : <History />}
           </div>
         </div>
       </div>

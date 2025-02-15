@@ -1,0 +1,167 @@
+/* Form Header */
+/* Profile Management Page */
+.profile-management-page {
+    font-family: Arial, sans-serif;
+    background-image: url('../assets/addbf.jpg');
+    background-size: cover; /* Cover entire page */
+    background-position: center center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+/* Profile Management Form */
+.profile-management-form {
+    width: 80%;
+    max-width: 800px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    
+    position: absolute;
+    top: 50%;
+    left: 60%; /* Shift it slightly to the right */
+    transform: translate(-50%, -50%);
+}
+
+
+.profile-management-form h2 {
+    color: #007bff;
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    
+}
+
+/* Two-Column Layout */
+.profile-management-form .form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.profile-management-form .form-group {
+    flex: 1;
+    margin-bottom: 10px;
+}
+
+/* Labels */
+.profile-management-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 3px;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Input Fields */
+.profile-management-form input,
+.profile-management-form select,
+.profile-management-form textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 14px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Fix Dropdown Width */
+.profile-management-form .wide-dropdown {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+}
+
+/* Skills & Availability Sections */
+.profile-management-form .skills-tags {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 5px;
+}
+
+/* Skill Tags */
+.profile-management-form .skill-tag {
+    background-color: #e9ecef;
+    padding: 5px 8px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+}
+
+/* Remove Skill Button */
+.profile-management-form .skill-tag button {
+    background: none;
+    border: none;
+    margin-left: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #888;
+}
+
+/* Profile Management Form */
+.profile-management-form {
+    width: 80%;
+    max-width: 800px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 10px auto;
+}
+
+/* Availability Input & Tags */
+.profile-management-form .availability-input {
+    display: flex;
+    gap: 10px;
+}
+/* Availability Tags (Bubbles) */
+.profile-management-form .availability-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* Individual Availability Bubble */
+.profile-management-form .availability-tag {
+    background-color: #007bff; /* Blue background */
+    color: white;
+    padding: 6px 15px;
+    min-width: 140px; /* Make bubbles longer */
+    max-width: 200px; /* Ensure they aren't too wide */
+    border-radius: 20px; /* Rounded shape */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap; /* Ensure text stays in one line */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease-in-out;
+}
+
+/* Remove Button inside Bubble */
+.profile-management-form .availability-tag button {
+    background: none;
+    border: none;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+    font-weight: bold;
+    transition: color 0.2s ease-in-out;
+}
+
+/* Hover effect for the Remove Button */
+.profile-management-form .availability-tag button:hover {
+    color: #ffdddd; /* Light red when hovered */
+}
