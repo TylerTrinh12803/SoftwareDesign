@@ -1,31 +1,23 @@
-/* ✅ Background Image ONLY for Notifications Page */
-.page-container {
-    width: 100%;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    background: url("../assets/addbf.jpg") no-repeat center center;
-    background-size: cover;
-}
-
-/* 🔹 Fix "Back to Home" Button to Top Right */
-
-
-/* 🔹 Main Notification Container */
+/* Main Notification Container */
 .notification-container {
     max-width: 600px;
-    background: rgba(0, 0, 0, 0.8); /* Dark semi-transparent box */
+    margin: 20px auto;
+    background: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-    color: white;
     font-family: 'Arial', sans-serif;
+    color: white;
 }
 
-/* 🔹 Notification Header */
+/* Scoped Background Image for Notification Page */
+.notification-background {
+    background: url('../assets/addbf.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+
+/* Notification Header */
 .notification-header {
     display: flex;
     justify-content: space-between;
@@ -36,7 +28,7 @@
     margin-bottom: 15px;
 }
 
-/* 🔹 Notification Count Badge */
+/* Notification Count Badge */
 .notification-count {
     background-color: #007bff;
     color: white;
@@ -46,7 +38,7 @@
     font-weight: bold;
 }
 
-/* 🔹 "Dismiss All" Link */
+/* "Mark All as Read" Link */
 .mark-read {
     font-size: 0.9rem;
     color: #007bff;
@@ -58,41 +50,60 @@
     color: #0056b3;
 }
 
-/* 🔹 Individual Notification Item */
+/* Individual Notification Item */
 .notification-item {
     display: flex;
     align-items: center;
     padding: 10px;
     border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent */
     margin-bottom: 10px;
     transition: background 0.3s;
+}
+
+.notification-item.unread {
+    background-color: rgba(255, 255, 255, 0.2); /* Highlight unread */
 }
 
 .notification-item:hover {
     background-color: rgba(255, 255, 255, 0.3);
 }
 
-/* 🔹 Notification Content */
+/* Notification Content */
 .notification-content {
     flex-grow: 1;
 }
 
-/* 🔹 Notification Title */
+/* Notification Title */
 .notification-content h4 {
     font-size: 1rem;
     font-weight: bold;
     margin: 0;
 }
 
-/* 🔹 Notification Message */
+/* Notification Message */
 .notification-content p {
     font-size: 0.9rem;
     color: white;
     margin: 5px 0;
 }
 
-/* 🔹 "Dismiss" Button */
+/* Time Stamp */
+.notification-time {
+    font-size: 0.8rem;
+    color: #ddd;
+}
+
+/* Red Dot for Unread Notifications */
+.unread-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #0056b3;
+    border-radius: 50%;
+    margin-left: 5px;
+}
+
+/* Dismiss Button */
 .dismiss-btn {
     background-color: #0056b3;
     color: white;
@@ -108,3 +119,4 @@
 .dismiss-btn:hover {
     background-color: #044182;
 }
+

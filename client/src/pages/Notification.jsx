@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../style/Notification.css';
 
 const Notification = () => {
@@ -10,31 +10,32 @@ const Notification = () => {
         { id: 5, title: 'Event Update', message: 'The Charity Ball has been canceled.', unread: true }
     ]);
 
-    // Function to dismiss a single notification
+    useEffect(() => {
+        document.body.classList.add('notification-background');
+        return () => {
+            document.body.classList.remove('notification-background');
+        };
+    }, []);
+
     const dismissNotification = (id) => {
         setNotifications(notifications.filter(notification => notification.id !== id));
     };
 
-    // Function to dismiss all notifications
     const dismissAllNotifications = () => {
-        setNotifications([]); // Clears the entire notification list
+        setNotifications([]);
     };
 
     return (
-        <div className="page-container">
-            {/* Back to Home Button - Positioned on Top Right */}
-            <button className="back-home-button" onClick={() => window.location.href = "/"}>
-                Back to Home
-            </button>
+        <>
+            {/* Back to Home Button - Styled as a button in the top right */}
+            <button className="back-home-button" onClick={() => window.location.href = "/"}>Back to Home</button>
 
             <div className="notification-container">
-                {/* Header with Notification Count */}
                 <div className="notification-header">
                     <span>Notifications <span className="notification-count">{notifications.length}</span></span>
                     {notifications.length > 0 && <span className="mark-read" onClick={dismissAllNotifications}>Dismiss All</span>}
                 </div>
 
-                {/* Notification List */}
                 {notifications.length > 0 ? notifications.map(notification => (
                     <div key={notification.id} className="notification-item">
                         <div className="notification-content">
@@ -49,7 +50,7 @@ const Notification = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </>
     );
 };
 
