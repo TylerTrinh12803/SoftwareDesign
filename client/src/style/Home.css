@@ -45,20 +45,22 @@ body {
 
 /* Profile Icon */
 .profile-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-image: url('../assets/pfp.png');
+    width: 50px; /* Increased width */
+    height: 50px; /* Increased height */
+    aspect-ratio: 1/1; /* Ensures the icon remains a perfect square */
+    border-radius: 50%; /* Makes it circular */
+    background-image: url('../assets/pfp.png'); /* Ensure correct path */
     background-size: cover;
     background-position: center;
-    display: block;
+    display: inline-block; /* Prevents shrinking */
     cursor: pointer;
     transition: transform 0.3s ease;
+    object-fit: cover; /* Ensures image is properly scaled */
 }
 
 /* Profile Hover Effect */
 .profile-icon:hover {
-    transform: scale(1.1);
+    transform: scale(1.1); /* Slight zoom effect */
 }
 
 /* Notification Icon */

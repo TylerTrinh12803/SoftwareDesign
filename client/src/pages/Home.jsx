@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../style/Home.css";
-import volunteerImage from "../assets/32595.jpg"; // Volunteer Image
-import logo from "../assets/logo.png"; // Logo
+import volunteerImage from "../assets/32595.jpg";
+import logo from "../assets/logo.png";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -17,37 +17,32 @@ const Home = () => {
     // Check if the user is logged in
     useEffect(() => {
         const token = localStorage.getItem("token");
-        const username = localStorage.getItem("username");
+        const email = localStorage.getItem("email"); 
         const role = localStorage.getItem("role");
-        const newNotifications = localStorage.getItem("notifications") || 0; // Retrieve stored notifications
+        const newNotifications = localStorage.getItem("notifications") || 0;
 
-        if (token && username) {
-            setUser({ username, role });
-            setNotifications(parseInt(newNotifications, 10)); // Convert to number
+        if (token && email) {
+            setUser({ email, role });
+            setNotifications(parseInt(newNotifications, 10));
         }
     }, []);
 
     // Logout function
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("username");
-        localStorage.removeItem("role");
-        localStorage.removeItem("notifications"); // Clear notifications on logout
-        navigate("/"); // Redirect to home after logout
+        localStorage.clear(); // Clear all user-related data
         setUser(null);
         setNotifications(0);
+        navigate("/"); // Stay on home page after logout
     };
 
     const handleNotificationClick = () => {
-        // Reset notifications in localStorage
         localStorage.setItem("notifications", "0");
-        setNotifications(0); // Update state to re-render component
+        setNotifications(0);
     };
 
     // Admin-Only: Delete Event
     const handleDelete = (id) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this event?");
-        if (confirmDelete) {
+        if (window.confirm("Are you sure you want to delete this event?")) {
             setEvents(events.filter(event => event.id !== id));
         }
     };
@@ -63,15 +58,10 @@ const Home = () => {
                 <div className="nav-right">
                     {user ? (
                         <>
-                            {/* Logout Button - Positioned at the Top Right */}
-                            <div className="logout-container">
-                                <button onClick={handleLogout} className="btn-logout">Logout</button>
-                            </div>
-
-                            <span className="user-name">Welcome, {user.username}</span>
+                            <span className="user-name">Welcome, {user.email}</span> 
                             <Link to="/profile" className="profile-icon"></Link>
 
-                            {/* Notification Bell - Rings if new notifications exist */}
+                            {/* Notification Bell */}
                             <Link 
                                 to="/Notification" 
                                 className={`notification-icon ${notifications > 0 ? "ringing" : ""}`} 
@@ -79,6 +69,9 @@ const Home = () => {
                             >
                                 🔔
                             </Link>
+
+                            {/* Logout Button */}
+                            <button onClick={handleLogout} className="btn-logout">Logout</button>
                         </>
                     ) : (
                         <>
@@ -104,7 +97,7 @@ const Home = () => {
             <div className="events-section">
                 <h2 className="events-title">Upcoming Events</h2>
 
-                {/* Admin-Only Controls */}
+                {/* Admin Controls */}
                 {user?.role === "admin" && (
                     <div className="admin-controls">
                          <button className="add-btn" onClick={() => navigate("/eventandmatch")}></button>
@@ -118,12 +111,10 @@ const Home = () => {
                             <p className="event-date">{event.date} | {event.location}</p>
                             <p className="event-description">{event.description}</p>
 
-                            {user && user.role === "admin" && (
+                            {/* Admin-Only Edit & Delete Buttons */}
+                            {user?.role === "admin" && (
                                 <div className="admin-controls">
-                                    {/* Edit Button */}
                                     <button className="edit-btn" onClick={() => navigate(`/update/${event.id}`)}></button>
-
-                                    {/* Delete Button */}
                                     <button className="delete-btn" onClick={() => handleDelete(event.id)}></button>
                                 </div>
                             )}

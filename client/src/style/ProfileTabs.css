@@ -97,3 +97,17 @@
   color: white;
 }
 
+/* Default background (no image) */
+.profile-tabs-container {
+  background-color: #f8f9fd;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Background Image for Users Tab */
+.users-background {
+  background-image: url('../assets/addbf.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../style/Login.css';
 
 const Login = ({ onLogin }) => { // Accept `onLogin` callback as a prop
-  const [email, setEmail] = useState(''); // Changed to email
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate(); // For redirection after successful login
@@ -19,14 +19,13 @@ const Login = ({ onLogin }) => { // Accept `onLogin` callback as a prop
 
     setError('');
 
-    // Send a POST request to your backend for authentication
     try {
       const response = await fetch('http://localhost:3360/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }), // Sending email instead of username
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -38,24 +37,19 @@ const Login = ({ onLogin }) => { // Accept `onLogin` callback as a prop
         localStorage.setItem('role', data.role);
         localStorage.setItem('email', email);
 
+        console.log('Logged in successfully as:', data.role);
+
         // Call the `onLogin` callback to update parent state
         if (onLogin) onLogin();
 
-        console.log('Logged in successfully as:', data.role);
-
-        // Redirect based on role
-        if (data.role === 'admin') {
-          navigate('/admin-dashboard'); // Redirect Admins
-        } else {
-          navigate('/user-dashboard'); // Redirect Regular Users
-        }
+        // Redirect to home page after login
+        navigate('/');
       } else {
-        // Handle specific error messages
         if (data.message === 'User not found') {
           setError("This account doesn't exist");
         } else if (data.message === 'Incorrect password') {
           setError('The email or password is incorrect');
-        } 
+        }
       }
     } catch (error) {
       console.error('Error:', error);
@@ -78,8 +72,10 @@ const Login = ({ onLogin }) => { // Accept `onLogin` callback as a prop
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              required
             />
           </div>
+
           <div className="input-group">
             <label htmlFor="password">Password:</label>
             <input
@@ -89,9 +85,12 @@ const Login = ({ onLogin }) => { // Accept `onLogin` callback as a prop
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
+              required
             />
           </div>
+
           {error && <p className="error-message">{error}</p>}
+
           <button type="submit" className="submit-button">Login</button>
 
           {/* Register link inside the same form */}

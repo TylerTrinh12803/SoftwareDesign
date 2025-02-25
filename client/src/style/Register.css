@@ -17,7 +17,7 @@
 
 /* The register form itself with a fixed width */
 .register-form {
-    background-color: rgba(0, 0, 0, 0.8);  /* Solid background */
+    background-color: rgba(0, 0, 0, 0.7);  /* Solid background */
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
@@ -38,11 +38,13 @@
 
 .input-group input {
     width: 100%;
+    min-width: 300px;   /* Ensures the input is at least 400px wide */
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ddd;
 }
+
 
 /* Error message styling */
 .error-message {

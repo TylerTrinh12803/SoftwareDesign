@@ -1,56 +1,80 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Import Link
-import '../style/Register.css';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import "../style/Register.css";
 
 const Register = () => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState(''); // New confirm password field
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState('user'); // Default role is 'user'
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Check if all fields are filled
-    if (password === '' || confirmPassword === '' || email === '') {
-      setError('Please fill in all fields');
+    if (password === "" || confirmPassword === "" || email === "") {
+      setError("Please fill in all fields");
       return;
     }
 
     // Check if passwords match
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
-    setError('');
+    setError("");
 
-    // Prepare registration data
+    // Prepare registration data (role is automatically set to "user")
     const userData = {
       email,
       password,
-      role, // Include selected role
+      role: "user", // Automatically assign "user" role
     };
 
     try {
-      const response = await fetch('http://localhost:3360/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // Register user
+      const registerResponse = await fetch("http://localhost:3360/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
       });
 
-      const data = await response.json();
+      const registerData = await registerResponse.json();
 
-      if (response.ok) {
-        console.log('User Registered:', data);
-        alert('Registration successful!');
-      } else {
-        setError(data.message || 'Registration failed');
+      if (!registerResponse.ok) {
+        throw new Error(registerData.message || "Registration failed");
       }
+
+      console.log("User Registered:", registerData);
+
+      // Automatically log in the user after successful registration
+      const loginResponse = await fetch("http://localhost:3360/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }), // Use same email & password for login
+      });
+
+      const loginData = await loginResponse.json();
+
+      if (!loginResponse.ok) {
+        throw new Error(loginData.message || "Login failed after registration");
+      }
+
+      // Store login data in localStorage
+      localStorage.setItem("token", loginData.token);
+      localStorage.setItem("userId", loginData.userId);
+      localStorage.setItem("role", loginData.role);
+      localStorage.setItem("email", email);
+
+      console.log("User Logged In:", loginData);
+
+      // Redirect to home page after successful login
+      navigate("/");
     } catch (error) {
-      console.error('Error:', error);
-      setError('An error occurred during registration');
+      console.error("Error:", error);
+      setError(error.message || "An error occurred during registration");
     }
   };
 
@@ -98,33 +122,25 @@ const Register = () => {
           />
         </div>
 
-        {/* Role Selection */}
-        <div className="input-group">
-          <label htmlFor="role">Register As:</label>
-          <select
-            id="role"
-            name="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-
         {error && <p className="error-message">{error}</p>}
 
         {/* Register button inside the form */}
-        <button type="submit" className="submit-button">Register</button>
+        <button type="submit" className="submit-button">
+          Register
+        </button>
 
         {/* Back to login link */}
         <div className="back-to-login">
           <p>Already have an account?</p>
-          <Link to="/login" className="auth-link">Login</Link>
+          <Link to="/login" className="auth-link">
+            Login
+          </Link>
         </div>
         {/* Back to Home Button */}
         <div className="back-to-home">
-          <Link to="/" className="home-button">Back to Home</Link>
+          <Link to="/" className="home-button">
+            Back to Home
+          </Link>
         </div>
       </form>
     </div>

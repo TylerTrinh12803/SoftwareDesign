@@ -1,32 +1,35 @@
 /* Login.css */
 
-/* Set the background image for the login page */
+/* Full-page container with a centered form */
 .login-container {
     display: flex;
     justify-content: center;    /* Center horizontally */
     align-items: center;        /* Center vertically */
     height: 100vh;              /* Full viewport height */
+
+    /* Make the background image cover the entire screen */
     background-image: url('../assets/43052.jpg');
-    background-size: 90%;       /* Shrinks the background image to 90% of its original size */
-    background-position: center center; /* Keep the image centered */
+    background-size: cover;      
+    background-position: center center; 
     background-repeat: no-repeat;
     background-attachment: fixed; /* Keeps the background fixed while scrolling */
+
     color: white;
     font-family: Arial, sans-serif;
-}  
+}
 
-/* The login form itself with a fixed width */
+/* The login form with a slightly narrower width and more transparent background */
 .login-form {
-    background-color: rgba(0, 0, 0, 0.8);  /* Solid background */
-    padding: 30px;
-    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.7);  /* Increased transparency */
+    padding: 20px;
+    border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-    width: 400px;    /* Fixed width */
-    max-width: 400px; /* Prevents it from expanding */
+    width: 350px;        /* Slightly smaller form width */
+    max-width: 90%;      /* Responsive on smaller screens */
     margin: 0;
 }
 
-/* Styling for the login form input fields */
+/* Spacing for input fields */
 .input-group {
     margin-bottom: 15px;
 }
@@ -38,11 +41,13 @@
 
 .input-group input {
     width: 100%;
+    min-width: 250px;   /* Ensures the input is at least 400px wide */
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ddd;
 }
+
 
 /* Error message styling */
 .error-message {
@@ -51,7 +56,7 @@
     margin-top: 10px;
 }
 
-/* Submit button (Login button) */
+/* Submit button */
 .submit-button {
     background-color: #3681d1;
     color: white;
@@ -64,7 +69,7 @@
 }
 
 .submit-button:hover {
-    background-color: #3681d1;
+    background-color: #2f72b8;
 }
 
 /* Register link */
@@ -86,6 +91,7 @@
     text-decoration: underline;
 }
 
+/* Back to home button styling */
 .back-to-home {
     text-align: center;
     margin-top: 15px;
@@ -95,7 +101,7 @@
     display: inline-block;
     padding: 10px 20px;
     border-radius: 30px;
-    background-color: #3681d1;
+    background-color: #3681d1 !important;
     color: white;
     text-decoration: none;
     font-weight: 600;
@@ -103,5 +109,5 @@
 }
 
 .home-button:hover {
-    background-color: #3681d1;
+    background-color: #2f72b8;
 }
