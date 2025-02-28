@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./Routes/authRoutes.js";
 import userRoutes from "./Routes/userRoutes.js";
+import eventRoutes from "./Routes/eventRoutes.js";
 
 const app = express();
 
@@ -12,6 +13,8 @@ app.use(express.json());
 // Routes
 app.use(authRoutes);
 app.use(userRoutes);
+app.use(eventRoutes);
+
 
 // Start the server
 const PORT = 3360;

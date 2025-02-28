@@ -8,11 +8,22 @@ const Home = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [notifications, setNotifications] = useState(0);
-    const [events, setEvents] = useState([
-        { id: 1, title: "Community Clean-Up", date: "2025-03-15", location: "Central Park, NY", description: "Join us to clean up the park and make it greener!" },
-        { id: 2, title: "Food Drive", date: "2025-04-10", location: "Local Food Bank", description: "Help distribute food to those in need." },
-        { id: 3, title: "Tree Planting", date: "2025-05-05", location: "City Botanical Garden", description: "Contribute to a greener future by planting trees." }
-    ]);
+    const [events, setEvents] = useState([]);
+
+    // Fetch events from the backend
+    useEffect(() => {
+        fetchEvents();
+    }, []);
+
+    const fetchEvents = async () => {
+        try {
+            const response = await fetch("http://localhost:3360/events");
+            const data = await response.json();
+            setEvents(data);
+        } catch (error) {
+            console.error("Error fetching events:", error);
+        }
+    };
 
     // Check if the user is logged in
     useEffect(() => {
@@ -29,10 +40,10 @@ const Home = () => {
 
     // Logout function
     const handleLogout = () => {
-        localStorage.clear(); // Clear all user-related data
+        localStorage.clear();
         setUser(null);
         setNotifications(0);
-        navigate("/"); // Stay on home page after logout
+        navigate("/");
     };
 
     const handleNotificationClick = () => {
@@ -41,9 +52,18 @@ const Home = () => {
     };
 
     // Admin-Only: Delete Event
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this event?")) {
-            setEvents(events.filter(event => event.id !== id));
+            try {
+                await fetch(`http://localhost:3360/events/${id}`, {
+                    method: "DELETE",
+                });
+
+                // Refresh the event list after deletion
+                fetchEvents();
+            } catch (error) {
+                console.error("Error deleting event:", error);
+            }
         }
     };
 
@@ -100,26 +120,39 @@ const Home = () => {
                 {/* Admin Controls */}
                 {user?.role === "admin" && (
                     <div className="admin-controls">
-                         <button className="add-btn" onClick={() => navigate("/eventandmatch")}></button>
+                        <button className="add-btn" onClick={() => navigate("/eventandmatch")}></button>
                     </div>
                 )}
 
                 <div className="events-container">
-                    {events.map(event => (
-                        <div key={event.id} className="event">
-                            <h3 className="event-title">{event.title}</h3>
-                            <p className="event-date">{event.date} | {event.location}</p>
-                            <p className="event-description">{event.description}</p>
+                    {events.length === 0 ? (
+                        <p>No events available.</p>
+                    ) : (
+                        events.map(event => {
+                            // Convert event_date to a readable format (DD-MM-YYYY)
+                            const formattedDate = new Date(event.event_date).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                            });
 
-                            {/* Admin-Only Edit & Delete Buttons */}
-                            {user?.role === "admin" && (
-                                <div className="admin-controls">
-                                    <button className="edit-btn" onClick={() => navigate(`/update/${event.id}`)}></button>
-                                    <button className="delete-btn" onClick={() => handleDelete(event.id)}></button>
+                            return (
+                                <div key={event.event_id} className="event">
+                                    <h3 className="event-title">{event.event_name}</h3>
+                                    <p className="event-date">{formattedDate} | {event.location}</p>
+                                    <p className="event-description">{event.description}</p>
+
+                                    {/* Admin-Only Edit & Delete Buttons */}
+                                    {user?.role === "admin" && (
+                                        <div className="admin-controls">
+                                            <button className="edit-btn" onClick={() => navigate(`/update/${event.event_id}`)}></button>
+                                            <button className="delete-btn" onClick={() => handleDelete(event.event_id)}></button>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-                    ))}
+                            );
+                        })
+                    )}
                 </div>
             </div>
         </div>

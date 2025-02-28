@@ -12,7 +12,7 @@ const MatchingAdd = () => {
   const [description, setDescription] = useState("");
   const [urgency, setUrgency] = useState("");
   const [requiredSkills, setRequiredSkills] = useState([]);
-
+  const [selectedSkillToDelete, setSelectedSkillToDelete] = useState("");
   // Skill Management State
   const [newSkill, setNewSkill] = useState("");
   const [skills, setSkills] = useState([]);
@@ -76,24 +76,52 @@ const MatchingAdd = () => {
       setMessage("Skill name is required");
       return;
     }
+  
     try {
       const response = await fetch("http://localhost:3360/skills", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ skill_name: newSkill }),
       });
-
+  
+      const data = await response.json();
+  
       if (response.ok) {
         setMessage("Skill added successfully!");
-        setNewSkill("");
-        fetchSkills();
+        setNewSkill("");  // Clear input
+        fetchSkills();  // Refresh skills list
         setShowSkillModal(false); // Close modal
       } else {
-        setMessage("Failed to add skill.");
+        setMessage(data.message || "Failed to add skill.");
       }
     } catch (error) {
       console.error("Error adding skill:", error);
       setMessage("Server error while adding skill.");
+    }
+  };  
+
+  const handleDeleteSkill = async (e) => {
+    e.preventDefault();
+    if (!selectedSkillToDelete) {
+      setMessage("Please select a skill to delete.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3360/skills/${selectedSkillToDelete}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setMessage("Skill deleted successfully!");
+        setSelectedSkillToDelete("");
+        fetchSkills();
+      } else {
+        setMessage("Failed to delete skill.");
+      }
+    } catch (error) {
+      console.error("Error deleting skill:", error);
+      setMessage("Server error while deleting skill.");
     }
   };
 
@@ -108,18 +136,20 @@ const MatchingAdd = () => {
       const response = await fetch("http://localhost:3360/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ event_name: eventName, description, location, urgency, event_date: eventDate, skills: requiredSkills }),
+        body: JSON.stringify({ 
+          event_name: eventName, 
+          description, 
+          location, 
+          urgency, 
+          event_date: eventDate, 
+          skills: requiredSkills 
+        }),
       });
-
+  
       if (response.ok) {
-        setMessage("Event added successfully!");
-        fetchEvents();
-        setEventName("");
-        setEventDate("");
-        setLocation("");
-        setDescription("");
-        setUrgency("");
-        setRequiredSkills([]);
+        if (window.confirm(`Successfully added event: "${eventName}". Click OK to return to homepage.`)) {
+          navigate("/"); // Redirect to homepage after confirmation
+        }
       } else {
         setMessage("Failed to add event.");
       }
@@ -127,7 +157,7 @@ const MatchingAdd = () => {
       console.error("Error adding event:", error);
       setMessage("Server error while adding event.");
     }
-  };
+  };  
 
   // Handle Volunteer Match Submission
   const handleSubmitMatch = async (event) => {
@@ -155,6 +185,7 @@ const MatchingAdd = () => {
       setMessage("Server error while matching volunteer.");
     }
   };
+
 
   return (
     <div className="page-container">
@@ -237,7 +268,23 @@ const MatchingAdd = () => {
       )}
 
       {message && <p className="success-message">{message}</p>}
+      
+      <div className="delete-skill-box">
+          <h2>Delete Skill</h2>
+          <form onSubmit={handleDeleteSkill}>
+            <select value={selectedSkillToDelete} onChange={(e) => setSelectedSkillToDelete(e.target.value)}>
+              <option value="">Select a Skill to Delete</option>
+              {skills.map((skill) => (
+                <option key={skill.skill_id} value={skill.skill_id}>
+                  {skill.skill_name}
+                </option>
+              ))}
+            </select>
+            <button type="submit" className="delete-btn"></button>
+          </form>
+        </div>
     </div>
+    
   );
 };
 

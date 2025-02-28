@@ -406,11 +406,17 @@ body {
 .admin-controls {
     display: flex;
     gap: 10px;
+    align-items: center; /* Align buttons vertically */
+    justify-content: flex-end; /* Push buttons to the right */
     margin-top: 10px;
+    padding-right: 10px; /* Adjust spacing */
 }
 
-/* Edit and Delete Buttons (Using Background Image) */
-.edit-btn, .delete-btn {
+
+/* Edit Button - Move Slightly Up */
+.edit-btn {
+    background-image: url('../assets/pen.png'); 
+    margin-bottom: 5px; /* Moves the edit button up */
     width: 30px;
     height: 30px;
     background-size: contain;
@@ -418,20 +424,23 @@ body {
     background-position: center;
     cursor: pointer;
     border: none;
-    background-color: transparent; /* No background */
+    background-color: transparent;
     transition: transform 0.2s ease;
 }
 
-/* Edit Button (Pen Icon) */
-.edit-btn {
-    background-image: url('../assets/pen.png'); /* Import edit icon */
-}
-
-/* Delete Button (Trash Bin Icon) */
+/* Delete Button - Keep Normal Position */
 .delete-btn {
-    background-image: url('../assets/trash-bin.png'); /* Import delete icon */
+    background-image: url('../assets/trash-bin.png'); 
+    width: 30px;
+    height: 30px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    transition: transform 0.2s ease;
 }
-
 /* Hover Effects */
 .edit-btn:hover, .delete-btn:hover {
     transform: scale(1.1);

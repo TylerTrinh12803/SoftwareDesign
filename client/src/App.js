@@ -30,7 +30,7 @@ function App() {
         <Route path="/" element={<Home isAuthenticated={isAuthenticated} />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/update" element={<Update />} />
+        <Route path="/update/:id" element={<Update />} />
         <Route path="/Notification" element={<Notification />}/>
         <Route path="/History" element={<History />}/>
         <Route path="/profile" element={<ProfileTabs />}/>
