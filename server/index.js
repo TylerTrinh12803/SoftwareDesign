@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./Routes/authRoutes.js";
 import userRoutes from "./Routes/userRoutes.js";
 import eventRoutes from "./Routes/eventRoutes.js";
+import notificationRoutes from "./Routes/notificationRoutes.js";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(authRoutes);
 app.use(userRoutes);
 app.use(eventRoutes);
+app.use(notificationRoutes);
 
 
 // Start the server
