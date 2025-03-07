@@ -1,205 +1,189 @@
 import express from "express";
-import db from "../config/db.js";
 
 const router = express.Router();
 
+// In‑memory storage for skills and events
+let skills = [
+  { skill_id: 1, skill_name: "Cooking" },
+  { skill_id: 2, skill_name: "First Aid" }
+];
+let nextSkillId = 3;
+
+let events = [
+  {
+    event_id: 1,
+    event_name: "Beach Cleanup",
+    description: "Help clean up the beach.",
+    location: "Santa Monica",
+    urgency: "high",
+    event_date: "2025-04-15",
+    // storing associated skills as an array of skill IDs
+    skills: [1]
+  },
+  {
+    event_id: 2,
+    event_name: "Food Drive",
+    description: "Collect food donations for the community.",
+    location: "Downtown",
+    urgency: "medium",
+    event_date: "2025-05-10",
+    skills: [2]
+  }
+];
+let nextEventId = 3;
+
+// -----------------------------
+// Skills Endpoints
+// -----------------------------
+
 // Add a New Skill
-router.post("/skills", async (req, res) => {
+router.post("/skills", (req, res) => {
   const { skill_name } = req.body;
-  console.log("Received request to add skill:", skill_name);  // Debugging Log
+  console.log("Received request to add skill:", skill_name);
 
   if (!skill_name) {
     return res.status(400).json({ message: "Skill name is required." });
   }
 
-  try {
-    const [result] = await db.query("INSERT INTO skills (skill_name) VALUES (?)", [skill_name]);
-    console.log("Skill added successfully:", result.insertId);  // Debugging Log
-    res.status(201).json({ message: "Skill added successfully", skill_id: result.insertId });
-  } catch (error) {
-    console.error("Error adding skill:", error);
-    res.status(500).json({ message: "Database error" });
-  }
+  const newSkill = { skill_id: nextSkillId++, skill_name };
+  skills.push(newSkill);
+  console.log("Skill added successfully:", newSkill.skill_id);
+  res.status(201).json({ message: "Skill added successfully", skill_id: newSkill.skill_id });
 });
-
 
 // Get All Skills
-router.get("/skills", async (req, res) => {
-  try {
-    const [skills] = await db.query("SELECT * FROM skills");
-    res.json(skills);
-  } catch (error) {
-    console.error("Error fetching skills:", error);
-    res.status(500).json({ message: "Database error" });
-  }
+router.get("/skills", (req, res) => {
+  res.json(skills);
 });
 
-router.delete("/skills/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const [result] = await db.query("DELETE FROM skills WHERE skill_id = ?", [id]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Skill not found" });
-    }
-
-    res.status(200).json({ message: "Skill deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting skill:", error);
-    res.status(500).json({ message: "Database error" });
+// Delete a Skill
+router.delete("/skills/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const index = skills.findIndex(skill => skill.skill_id === id);
+  if (index === -1) {
+    return res.status(404).json({ message: "Skill not found" });
   }
+  skills.splice(index, 1);
+  res.status(200).json({ message: "Skill deleted successfully" });
 });
 
+// -----------------------------
+// Events Endpoints
+// -----------------------------
 
 // Create a New Event with Skills
-router.post("/events", async (req, res) => {
-  const { event_name, description, location, urgency, event_date, skills } = req.body;
+router.post("/events", (req, res) => {
+  const { event_name, description, location, urgency, event_date, skills: eventSkills } = req.body;
 
-  if (!event_name || !description || !location || !urgency || !event_date || !skills) {
+  if (!event_name || !description || !location || !urgency || !event_date || !eventSkills) {
     return res.status(400).json({ message: "All event fields and skills are required." });
   }
 
-  // Convert event_date to a JavaScript Date object
+  // Validate the event date is not in the past (compare only date)
   const eventDateObj = new Date(event_date);
   const today = new Date();
-
-  // Set time to midnight to compare only the date, not the time
   today.setHours(0, 0, 0, 0);
   eventDateObj.setHours(0, 0, 0, 0);
-
   if (eventDateObj < today) {
     return res.status(400).json({ message: "You cannot create an event for a past date." });
   }
 
-  try {
-    // Insert event into database
-    const [eventResult] = await db.query(
-      "INSERT INTO events (event_name, description, location, urgency, event_date) VALUES (?, ?, ?, ?, ?)",
-      [event_name, description, location, urgency, event_date]
-    );
+  const newEvent = {
+    event_id: nextEventId++,
+    event_name,
+    description,
+    location,
+    urgency,
+    event_date,
+    skills: eventSkills // expects an array of skill IDs
+  };
 
-    const event_id = eventResult.insertId;
+  events.push(newEvent);
+  res.status(201).json({ message: "Event created successfully", event_id: newEvent.event_id });
+});
 
-    // Assign skills to event
-    for (const skill_id of skills) {
-      await db.query("INSERT INTO event_skills (event_id, skill_id) VALUES (?, ?)", [event_id, skill_id]);
+// Get All Events
+router.get("/events", (req, res) => {
+  // Map each event to include a concatenated string of required skill names
+  const formattedEvents = events.map(e => {
+    const required_skills = e.skills
+      .map(skillId => {
+        const found = skills.find(s => s.skill_id === skillId);
+        return found ? found.skill_name : null;
+      })
+      .filter(name => name !== null)
+      .join(", ");
+    return { ...e, required_skills };
+  });
+
+  // Sort events by urgency (high < medium < low) then by event_date ascending
+  const urgencyOrder = { high: 1, medium: 2, low: 3 };
+  formattedEvents.sort((a, b) => {
+    if (urgencyOrder[a.urgency] !== urgencyOrder[b.urgency]) {
+      return urgencyOrder[a.urgency] - urgencyOrder[b.urgency];
     }
+    return new Date(a.event_date) - new Date(b.event_date);
+  });
 
-    res.status(201).json({ message: "Event created successfully", event_id });
-  } catch (error) {
-    console.error("Error creating event:", error);
-    res.status(500).json({ message: "Database error" });
-  }
-});
-router.get("/events", async (req, res) => {
-  try {
-    const [events] = await db.query(
-      `SELECT e.event_id, e.event_name, e.description, e.location, e.urgency, 
-              DATE_FORMAT(e.event_date, '%Y-%m-%d') AS event_date, 
-              GROUP_CONCAT(s.skill_name) AS required_skills
-       FROM events e
-       LEFT JOIN event_skills es ON e.event_id = es.event_id
-       LEFT JOIN skills s ON es.skill_id = s.skill_id
-       GROUP BY e.event_id
-       ORDER BY 
-         CASE 
-           WHEN e.urgency = 'high' THEN 1 
-           WHEN e.urgency = 'medium' THEN 2 
-           WHEN e.urgency = 'low' THEN 3 
-         END, 
-         e.event_date ASC` // Second order by event_date to sort within urgency
-    );
-
-    res.json(events);
-  } catch (error) {
-    console.error("Error fetching events:", error);
-    res.status(500).json({ message: "Database error" });
-  }
+  res.json(formattedEvents);
 });
 
-
-router.delete("/events/:id", async (req, res) => {
-  const { id } = req.params;
-  
-  try {
-    await db.query("DELETE FROM events WHERE event_id = ?", [id]);
-    res.json({ message: "Event deleted successfully!" });
-  } catch (error) {
-    console.error("Error deleting event:", error);
-    res.status(500).json({ message: "Database error" });
+// Delete an Event
+router.delete("/events/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const index = events.findIndex(event => event.event_id === id);
+  if (index === -1) {
+    return res.status(404).json({ message: "Event not found" });
   }
+  events.splice(index, 1);
+  res.json({ message: "Event deleted successfully!" });
 });
 
-router.get("/events/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const [events] = await db.query(
-      `SELECT e.event_id, e.event_name, e.description, e.location, e.urgency, 
-              DATE_FORMAT(e.event_date, '%Y-%m-%d') AS event_date, 
-              GROUP_CONCAT(s.skill_name) AS required_skills
-       FROM events e
-       LEFT JOIN event_skills es ON e.event_id = es.event_id
-       LEFT JOIN skills s ON es.skill_id = s.skill_id
-       WHERE e.event_id = ?
-       GROUP BY e.event_id`,
-      [id]
-    );
-
-    if (events.length === 0) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-
-    res.json(events[0]);
-  } catch (error) {
-    console.error("Error fetching event:", error);
-    res.status(500).json({ message: "Database error" });
+// Get a Specific Event by ID
+router.get("/events/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const event = events.find(e => e.event_id === id);
+  if (!event) {
+    return res.status(404).json({ message: "Event not found" });
   }
+  const required_skills = event.skills
+    .map(skillId => {
+      const found = skills.find(s => s.skill_id === skillId);
+      return found ? found.skill_name : null;
+    })
+    .filter(name => name !== null)
+    .join(", ");
+  res.json({ ...event, required_skills });
 });
 
+// Update an Event
+router.put("/events/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { event_name, description, location, urgency, event_date, skills: eventSkills } = req.body;
+  const event = events.find(e => e.event_id === id);
 
-router.put("/events/:id", async (req, res) => {
-  const { id } = req.params;
-  const { event_name, description, location, urgency, event_date, skills } = req.body;
-
-  try {
-    // Convert event_date to a JavaScript Date object
-    const eventDateObj = new Date(event_date);
-    const today = new Date();
-
-    // Set time to midnight to compare only the date, not the time
-    today.setHours(0, 0, 0, 0);
-    eventDateObj.setHours(0, 0, 0, 0);
-
-    if (eventDateObj < today) {
-      return res.status(400).json({ message: "You cannot update an event to a past date." });
-    }
-
-    // Update event details
-    await db.query(
-      "UPDATE events SET event_name = ?, description = ?, location = ?, urgency = ?, event_date = ? WHERE event_id = ?",
-      [event_name, description, location, urgency, event_date, id]
-    );
-
-    // Remove old skills and insert new ones
-    await db.query("DELETE FROM event_skills WHERE event_id = ?", [id]);
-
-    if (skills.length > 0) {
-      for (const skill of skills) {
-        await db.query(
-          "INSERT INTO event_skills (event_id, skill_id) VALUES (?, (SELECT skill_id FROM skills WHERE skill_name = ?))",
-          [id, skill]
-        );
-      }
-    }
-
-    res.json({ message: "Event updated successfully!" });
-  } catch (error) {
-    console.error("Error updating event:", error);
-    res.status(500).json({ message: "Database error" });
+  if (!event) {
+    return res.status(404).json({ message: "Event not found" });
   }
-});
 
+  // Validate new event_date is not in the past
+  const eventDateObj = new Date(event_date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  eventDateObj.setHours(0, 0, 0, 0);
+  if (eventDateObj < today) {
+    return res.status(400).json({ message: "You cannot update an event to a past date." });
+  }
+
+  // Update event details
+  event.event_name = event_name;
+  event.description = description;
+  event.location = location;
+  event.urgency = urgency;
+  event.event_date = event_date;
+  event.skills = eventSkills;
+
+  res.json({ message: "Event updated successfully!" });
+});
 
 export default router;

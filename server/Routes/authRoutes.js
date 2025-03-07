@@ -1,8 +1,11 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import db from "../config/db.js"; // Import database connection
 
 const router = express.Router();
+
+// In-memory storage for users
+let users = [];
+let nextUserId = 1;
 
 // User Login Route
 router.post("/login", async (req, res) => {
@@ -13,20 +16,20 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    const [results] = await db.query("SELECT * FROM users WHERE email = ? LIMIT 1", [email]);
-    if (results.length === 0) {
+    // Look up the user in the in-memory array
+    const user = users.find((user) => user.email === email);
+
+    if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
 
-    const user = results[0];
-
-    // Compare hashed password
+    // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Incorrect password" });
     }
 
-    // Send token (simplified)
+    // Send a dummy token and user info
     res.json({
       token: "dummy-token",
       userId: user.user_id,
@@ -34,7 +37,7 @@ router.post("/login", async (req, res) => {
       email: user.email,
     });
   } catch (error) {
-    console.error("Database error:", error);
+    console.error("Error during login:", error);
     return res.status(500).json({ message: "Server error" });
   }
 });
@@ -51,25 +54,30 @@ router.post("/register", async (req, res) => {
   const newUserRole = role === "admin" ? "admin" : "user";
 
   try {
-    // Check if user already exists
-    const [existingUsers] = await db.query("SELECT * FROM users WHERE email = ? LIMIT 1", [email]);
-    if (existingUsers.length > 0) {
+    // Check if a user with the given email already exists
+    const existingUser = users.find((user) => user.email === email);
+    if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Hash the password
+    // Hash the password before storing
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Insert user into database
-    const [result] = await db.query(
-      "INSERT INTO users (email, password, role) VALUES (?, ?, ?)",
-      [email, hashedPassword, newUserRole]
-    );
+    // Create a new user object
+    const newUser = {
+      user_id: nextUserId++,
+      email,
+      password: hashedPassword,
+      role: newUserRole,
+    };
+
+    // Add the new user to the in-memory storage
+    users.push(newUser);
 
     res.status(201).json({
       message: "User registered successfully",
-      userId: result.insertId,
+      userId: newUser.user_id,
       role: newUserRole,
       email,
     });

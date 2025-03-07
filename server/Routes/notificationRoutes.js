@@ -1,5 +1,5 @@
 import express from 'express';
-import { db } from '../config/db.js';  // Ensure the path is correct
+//import { db } from '../config/db.js';  // Ensure the path is correct
 
 const router = express.Router();
 
