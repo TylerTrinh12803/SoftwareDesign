@@ -13,12 +13,12 @@ const Update = () => {
   const [description, setDescription] = useState("");
   const [urgency, setUrgency] = useState("");
   const [requiredSkills, setRequiredSkills] = useState([]);
-  const [selectedSkillToDelete, setSelectedSkillToDelete] = useState("");
 
   // Skill Management State
   const [newSkill, setNewSkill] = useState("");
   const [skills, setSkills] = useState([]);
   const [showSkillModal, setShowSkillModal] = useState(false);
+  const [selectedSkillToDelete, setSelectedSkillToDelete] = useState("");
 
   // Volunteer Matching State
   const [volunteers, setVolunteers] = useState([]);
@@ -45,7 +45,12 @@ const Update = () => {
       setLocation(data.location);
       setDescription(data.description);
       setUrgency(data.urgency);
-      setRequiredSkills(data.required_skills ? data.required_skills.split(",") : []);
+      // Assuming the API returns a comma-separated string of skills
+      setRequiredSkills(
+        data.required_skills
+          ? data.required_skills.split(",").map((skill) => skill.trim())
+          : []
+      );
     } catch (error) {
       console.error("Error fetching event:", error);
     }
@@ -76,28 +81,35 @@ const Update = () => {
   // Handle Updating an Event
   const handleUpdateEvent = async (e) => {
     e.preventDefault();
-  
-    if (!eventName || !eventDate || !location || !description || !urgency || requiredSkills.length === 0) {
+
+    if (
+      !eventName ||
+      !eventDate ||
+      !location ||
+      !description ||
+      !urgency ||
+      requiredSkills.length === 0
+    ) {
       setMessage("All fields are required.");
       return;
     }
-  
+
     const formattedDate = eventDate.split("T")[0]; // Ensure YYYY-MM-DD format
-  
+
     try {
       const response = await fetch(`http://localhost:3360/events/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           event_name: eventName,
-          event_date: formattedDate, // Use correctly formatted date
+          event_date: formattedDate,
           location,
           description,
           urgency,
           skills: requiredSkills,
         }),
       });
-  
+
       if (response.ok) {
         setMessage("Event updated successfully!");
         navigate("/"); // Redirect to home page after update
@@ -110,7 +122,7 @@ const Update = () => {
       setMessage("Server error while updating event.");
     }
   };
-  
+
   // Handle Adding a New Skill
   const handleAddSkill = async (e) => {
     e.preventDefault();
@@ -149,9 +161,10 @@ const Update = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3360/skills/${selectedSkillToDelete}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `http://localhost:3360/skills/${selectedSkillToDelete}`,
+        { method: "DELETE" }
+      );
 
       if (response.ok) {
         setMessage("Skill deleted successfully!");
@@ -177,14 +190,53 @@ const Update = () => {
         <div className="form-box">
           <h2>Update Event</h2>
           <form onSubmit={handleUpdateEvent}>
-            <input type="text" value={eventName} onChange={(e) => setEventName(e.target.value)} required />
-            <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
-            <textarea value={location} onChange={(e) => setLocation(e.target.value)} required />
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
-            <select value={urgency} onChange={(e) => setUrgency(e.target.value)} required>
+            <input
+              type="text"
+              value={eventName}
+              onChange={(e) => setEventName(e.target.value)}
+              required
+            />
+            <input
+              type="date"
+              value={eventDate}
+              onChange={(e) => setEventDate(e.target.value)}
+              required
+            />
+            <textarea
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+            />
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+            <select
+              value={urgency}
+              onChange={(e) => setUrgency(e.target.value)}
+              required
+            >
               <option value="high">High</option>
               <option value="medium">Medium</option>
               <option value="low">Low</option>
+            </select>
+            {/* New multi-select for Required Skills */}
+            <label>Required Skills:</label>
+            <select
+              multiple
+              value={requiredSkills}
+              onChange={(e) =>
+                setRequiredSkills(
+                  Array.from(e.target.selectedOptions, (option) => option.value)
+                )
+              }
+            >
+              {skills.map((skill) => (
+                <option key={skill.skill_id} value={skill.skill_name}>
+                  {skill.skill_name}
+                </option>
+              ))}
             </select>
             <button type="submit">Update Event</button>
           </form>
@@ -194,7 +246,14 @@ const Update = () => {
         <div className="form-box">
           <h2>Volunteer Match Form</h2>
           <form>
-            <select multiple onChange={(e) => setSelectedVolunteers([...e.target.selectedOptions].map(o => o.value))}>
+            <select
+              multiple
+              onChange={(e) =>
+                setSelectedVolunteers(
+                  Array.from(e.target.selectedOptions, (option) => option.value)
+                )
+              }
+            >
               <option value="">Select Volunteers</option>
               {volunteers.map((volunteer) => (
                 <option key={volunteer.id} value={volunteer.id}>
@@ -205,10 +264,15 @@ const Update = () => {
             <button type="submit">Match Volunteers</button>
           </form>
         </div>
+
+        {/* Delete Skill Form */}
         <div className="form-box delete-skill-box">
           <h2>Delete Skill</h2>
           <form onSubmit={handleDeleteSkill}>
-            <select value={selectedSkillToDelete} onChange={(e) => setSelectedSkillToDelete(e.target.value)}>
+            <select
+              value={selectedSkillToDelete}
+              onChange={(e) => setSelectedSkillToDelete(e.target.value)}
+            >
               <option value="">Select a Skill to Delete</option>
               {skills.map((skill) => (
                 <option key={skill.skill_id} value={skill.skill_id}>
@@ -216,10 +280,11 @@ const Update = () => {
                 </option>
               ))}
             </select>
-            <button type="submit" className="delete-btn"></button>
+            <button type="submit" className="delete-btn">
+              Delete
+            </button>
           </form>
         </div>
-      
       </div>
 
       {/* Modal for Adding Skill */}
@@ -228,18 +293,24 @@ const Update = () => {
           <div className="modal">
             <h2>Add Skill</h2>
             <form onSubmit={handleAddSkill}>
-              <input type="text" placeholder="Enter Skill Name" value={newSkill} onChange={(e) => setNewSkill(e.target.value)} required />
+              <input
+                type="text"
+                placeholder="Enter Skill Name"
+                value={newSkill}
+                onChange={(e) => setNewSkill(e.target.value)}
+                required
+              />
               <button type="submit">Add Skill</button>
-              <button type="button" onClick={() => setShowSkillModal(false)}>Cancel</button>
+              <button type="button" onClick={() => setShowSkillModal(false)}>
+                Cancel
+              </button>
             </form>
           </div>
         </div>
       )}
 
       {message && <p className="success-message">{message}</p>}
-      
     </div>
-    
   );
 };
 
