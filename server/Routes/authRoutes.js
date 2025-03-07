@@ -1,11 +1,18 @@
-import express from "express";
-import bcrypt from "bcrypt";
+import express from 'express';
+import bcrypt from 'bcrypt';
 
 const router = express.Router();
-
-// In-memory storage for users
 let users = [];
 let nextUserId = 1;
+
+// Seed admin user using top-level await
+const hashedPassword = await bcrypt.hash("adminpass", 10);
+users.push({
+  user_id: nextUserId++,
+  email: "admin@example.com",
+  password: hashedPassword,
+  role: "admin",
+});
 
 // User Login Route
 router.post("/login", async (req, res) => {

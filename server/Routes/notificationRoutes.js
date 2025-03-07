@@ -1,43 +1,34 @@
+// Routes/notificationRoutes.js
 import express from 'express';
-//import { db } from '../config/db.js';  // Ensure the path is correct
-
 const router = express.Router();
 
-// Get all notifications
-router.get('/', async (req, res) => {
-    try {
-        const [rows] = await db.query('SELECT * FROM notifications');
-        res.json(rows);
-    } catch (error) {
-        console.error('Database error:', error);
-        res.status(500).json({ message: 'Error fetching notifications' });
-    }
-});
+// In-memory notifications data
+let notifications = [
+  { id: 1, title: 'Test Notification', message: 'This is a test.', unread: true },
+  { id: 2, title: 'Second Notification', message: 'Another test.', unread: true }
+];
 
-// Dismiss a single notification
-router.delete('/:id', async (req, res) => {
-    try {
-        const [result] = await db.query('DELETE FROM notifications WHERE id = ?', [req.params.id]);
-        if (result.affectedRows) {
-            res.send(`Notification with id ${req.params.id} has been dismissed.`);
-        } else {
-            res.status(404).send('Notification not found');
-        }
-    } catch (error) {
-        console.error('Database error:', error);
-        res.status(500).json({ message: 'Error dismissing notification' });
-    }
+// GET all notifications
+router.get('/', (req, res) => {
+  res.json(notifications);
 });
 
 // Dismiss all notifications
-router.delete('/dismiss-all', async (req, res) => {
-    try {
-        await db.query('UPDATE notifications SET unread = false');
-        res.send('All notifications have been marked as read.');
-    } catch (error) {
-        console.error('Database error:', error);
-        res.status(500).json({ message: 'Error marking all notifications as read' });
-    }
+router.delete('/dismiss-all', (req, res) => {
+  notifications = notifications.map(n => ({ ...n, unread: false }));
+  res.send('All notifications have been marked as read.');
+});
+
+// Dismiss a single notification
+router.delete('/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const index = notifications.findIndex(n => n.id === id);
+  if (index === -1) {
+    res.status(404).send('Notification not found');
+  } else {
+    notifications.splice(index, 1);
+    res.send(`Notification with id ${id} has been dismissed.`);
+  }
 });
 
 export default router;
