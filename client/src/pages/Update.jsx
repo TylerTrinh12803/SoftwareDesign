@@ -281,7 +281,7 @@ const Update = () => {
               ))}
             </select>
             <button type="submit" className="delete-btn">
-              Delete
+              
             </button>
           </form>
         </div>
