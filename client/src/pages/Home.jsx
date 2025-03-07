@@ -8,7 +8,29 @@ const Home = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [notifications, setNotifications] = useState(0);
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState([
+        {
+            event_id: 1,
+            event_name: "Beach Cleanup",
+            event_date: "2025-04-15",
+            location: "Santa Monica",
+            description: "Join us for a beach cleanup event and help keep our beaches clean!"
+        },
+        {
+            event_id: 2,
+            event_name: "Tree Planting",
+            event_date: "2025-05-01",
+            location: "Central Park",
+            description: "Help us plant trees and green our city for a sustainable future."
+        },
+        {
+            event_id: 3,
+            event_name: "Food Drive",
+            event_date: "2025-05-10",
+            location: "Downtown",
+            description: "Support local families by donating food during our annual food drive."
+        }
+    ]);
 
     // Fetch events from the backend
     useEffect(() => {
