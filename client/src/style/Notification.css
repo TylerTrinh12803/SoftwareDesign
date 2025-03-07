@@ -15,18 +15,9 @@ body {
     background: rgba(255, 255, 255, 0.9);
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-}
-
-/* Scoped Background Image for Notification Page */
-.notification-background {
-    background: url('../assets/addbf.jpg') no-repeat center center fixed;
-    background-size: cover;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+    font-family: 'Arial', sans-serif;
+    color: white;
 }
 
 
@@ -130,6 +121,20 @@ body {
 }
 
 .dismiss-btn:hover {
-    background-color: #2a6ba8;
+    background-color: #044182;
+}
+
+/* "Back to Home" Button */
+.link-button {
+    display: block;
+    text-align: center;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 15px;
+    transition: background 0.3s ease;
 }
 
