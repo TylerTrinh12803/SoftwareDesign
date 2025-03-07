@@ -5,7 +5,6 @@ import '../style/MatchingAdd.css';
 const MatchingAdd = () => {
   const navigate = useNavigate();
 
-  // Event Form State
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [location, setLocation] = useState('');
@@ -13,21 +12,15 @@ const MatchingAdd = () => {
   const [urgency, setUrgency] = useState('');
   const [requiredSkills, setRequiredSkills] = useState([]);
   const [selectedSkillToDelete, setSelectedSkillToDelete] = useState('');
-  // Skill Management State
   const [newSkill, setNewSkill] = useState('');
   const [skills, setSkills] = useState([]);
-  const [showSkillModal, setShowSkillModal] = useState(false); // Modal state
-
-  // Volunteer Matching State
+  const [showSkillModal, setShowSkillModal] = useState(false);
   const [volunteers, setVolunteers] = useState([]);
   const [events, setEvents] = useState([]);
   const [selectedVolunteers, setSelectedVolunteers] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState('');
-
-  // Messages & Errors
   const [message, setMessage] = useState('');
 
-  // Redirect non-admin users
   useEffect(() => {
     const role = localStorage.getItem('role');
     if (role !== 'admin') {
@@ -38,7 +31,6 @@ const MatchingAdd = () => {
     fetchVolunteers();
   }, [navigate]);
 
-  // Fetch Data from Backend
   const fetchEvents = async () => {
     try {
       const response = await fetch('http://localhost:3360/events');
@@ -69,28 +61,24 @@ const MatchingAdd = () => {
     }
   };
 
-  // Handle Adding a New Skill
   const handleAddSkill = async (e) => {
     e.preventDefault();
     if (!newSkill.trim()) {
       setMessage('Skill name is required');
       return;
     }
-  
     try {
       const response = await fetch('http://localhost:3360/skills', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ skill_name: newSkill }),
+        body: JSON.stringify({ skill_name: newSkill })
       });
-  
       const data = await response.json();
-  
       if (response.ok) {
         setMessage('Skill added successfully!');
-        setNewSkill('');  // Clear input
-        fetchSkills();  // Refresh skills list
-        setShowSkillModal(false); // Close modal
+        setNewSkill('');
+        fetchSkills();
+        setShowSkillModal(false);
       } else {
         setMessage(data.message || 'Failed to add skill.');
       }
@@ -98,7 +86,7 @@ const MatchingAdd = () => {
       console.error('Error adding skill:', error);
       setMessage('Server error while adding skill.');
     }
-  };  
+  };
 
   const handleDeleteSkill = async (e) => {
     e.preventDefault();
@@ -106,12 +94,10 @@ const MatchingAdd = () => {
       setMessage('Please select a skill to delete.');
       return;
     }
-
     try {
-        const response = await fetch(`http://localhost:3360/skills/${selectedSkillToDelete}`, {
-            method: 'DELETE',
+      const response = await fetch(`http://localhost:3360/skills/${selectedSkillToDelete}`, {
+        method: 'DELETE',
       });
-
       if (response.ok) {
         setMessage('Skill deleted successfully!');
         setSelectedSkillToDelete('');
@@ -125,7 +111,6 @@ const MatchingAdd = () => {
     }
   };
 
-  // Handle Adding an Event
   const handleSubmitEvent = async (e) => {
     e.preventDefault();
     if (!eventName || !eventDate || !location || !description || !urgency || requiredSkills.length === 0) {
@@ -136,20 +121,19 @@ const MatchingAdd = () => {
       const response = await fetch('http://localhost:3360/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          event_name: eventName, 
-          description, 
-          location, 
-          urgency, 
-          event_date: eventDate, 
-          skills: requiredSkills 
-        }),
+        body: JSON.stringify({
+          event_name: eventName,
+          description: description,
+          location: location,
+          urgency: urgency,
+          event_date: eventDate,
+          skills: requiredSkills
+        })
       });
-  
       if (response.ok) {
-        if (window.confirm(`Successfully added event: "${eventName}". Click OK to return to homepage.`)) {
-            navigate('/');
-          }
+        if (window.confirm(`Successfully added event: "${eventName}". Click OK to return to home page.`)) {
+          navigate('/');
+        }
       } else {
         setMessage('Failed to add event.');
       }
@@ -157,9 +141,8 @@ const MatchingAdd = () => {
       console.error('Error adding event:', error);
       setMessage('Server error while adding event.');
     }
-  };  
+  };
 
-  // Handle Volunteer Match Submission
   const handleSubmitMatch = async (event) => {
     event.preventDefault();
     if (!selectedVolunteers.length || !selectedEvent) {
@@ -170,9 +153,8 @@ const MatchingAdd = () => {
       const response = await fetch('http://localhost:3360/match-volunteer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ volunteers: selectedVolunteers, event_id: selectedEvent }),
+        body: JSON.stringify({ volunteers: selectedVolunteers, event_id: selectedEvent })
       });
-
       if (response.ok) {
         setMessage('Volunteer successfully matched to the event!');
         setSelectedVolunteers([]);
@@ -186,33 +168,58 @@ const MatchingAdd = () => {
     }
   };
 
-
-  return (
-    <>
-      {/* Back to Home Button - Styled as a button in the top right */}
-      <button className='back-home-button' onClick={() => window.location.href = '/'}>Back to Home</button>
-
-      <div className='notification-container'>
-        <div className='notification-header'>
-          <span>Notifications <span className='notification-count'>{notifications.length}</span></span>
-          {notifications.length > 0 && <span className='mark-read' onClick={dismissAllNotifications}>Dismiss All</span>}
-        </div>
-
-        {notifications.length > 0 ? notifications.map(notification => (
-          <div key={notification.id} className='notification-item'>
-            <div className='notification-content'>
-              <h4>{notification.title}</h4>
-              <p>{notification.message}</p>
-            </div>
-            <button className='dismiss-btn' onClick={() => dismissNotification(notification.id)}>Dismiss</button>
-          </div>
-        )) : (
-          <div className='notification-item'>
-            <p>No new notifications.</p>
-          </div>
-        )}
-      </div>
-    </>
+  return React.createElement(
+    React.Fragment,
+    null,
+    React.createElement(
+      'button',
+      { className: 'back-home-button', onClick: () => navigate('/') },
+      'Back to Home'
+    ),
+    React.createElement(
+      'div',
+      { className: 'notification-container' },
+      React.createElement(
+        'div',
+        { className: 'notification-header' },
+        React.createElement(
+          'span',
+          null,
+          'Notifications ',
+          React.createElement(
+            'span',
+            { className: 'notification-count' },
+            notifications.length
+          )
+        ),
+        notifications.length > 0 && React.createElement(
+          'span',
+          { className: 'mark-read', onClick: dismissAllNotifications },
+          'Dismiss All'
+        )
+      ),
+      notifications.length > 0 ? notifications.map(notification =>
+        React.createElement(
+          'div',
+          { key: notification.id, className: 'notification-item' },
+          React.createElement(
+            'div',
+            { className: 'notification-content' },
+            React.createElement('h4', null, notification.title),
+            React.createElement('p', null, notification.message)
+          ),
+          React.createElement(
+            'button',
+            { className: 'dismiss-btn', onClick: () => dismissNotification(notification.id) },
+            'Dismiss'
+          )
+        )
+      ) : React.createElement(
+        'div',
+        { className: 'notification-item' },
+        React.createElement('p', null, 'No new notifications.')
+      )
+    )
   );
 };
 

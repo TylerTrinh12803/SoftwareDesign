@@ -4,6 +4,7 @@ import authRoutes from "./Routes/authRoutes.js";
 import userRoutes from "./Routes/userRoutes.js";
 import eventRoutes from "./Routes/eventRoutes.js";
 import notificationRoutes from "./Routes/notificationRoutes.js";
+import matchingaddRoutes from "./Routes/matchingaddRoutes.js";
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(authRoutes);
 app.use(userRoutes);
 app.use(eventRoutes);
 app.use(notificationRoutes);
+app.use(matchingaddRoutes);
 
 
 // Start the server
