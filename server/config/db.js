@@ -1,4 +1,4 @@
-import mysql from "mysql2/promise";
+/*import mysql from "mysql2/promise";
 
 const db = await mysql.createConnection({
   host: "127.0.0.1",
@@ -9,3 +9,4 @@ const db = await mysql.createConnection({
 });
 
 export default db;
+*/
