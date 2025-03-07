@@ -1,52 +1,44 @@
+// Routes/volunteerRoutes.js
 import express from "express";
-import db from "../config/db.js";
-
 const router = express.Router();
 
-// Fetch Volunteers
-router.get("/volunteers", async (req, res) => {
-  try {
-    const [volunteers] = await db.query("SELECT * FROM volunteers");
-    res.json(volunteers);
-  } catch (error) {
-    console.error("Error fetching volunteers:", error);
-    res.status(500).json({ message: "Database error" });
-  }
+// In-memory data for volunteers (dummy data)
+const volunteers = [
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" }
+];
+
+// In-memory array to store volunteer-to-event matches
+let eventVolunteers = [];
+
+// GET /volunteers: Return all volunteers
+router.get("/volunteers", (req, res) => {
+  res.json(volunteers);
 });
 
-// Match Volunteer to an Event
-router.post("/match-volunteer", async (req, res) => {
-  const { volunteers, event_id } = req.body;
-
-  if (!event_id || !volunteers.length) {
+// POST /match-volunteer: Match volunteers to an event
+router.post("/match-volunteer", (req, res) => {
+  const { volunteers: volunteerIds, event_id } = req.body;
+  if (!event_id || !Array.isArray(volunteerIds) || volunteerIds.length === 0) {
     return res.status(400).json({ message: "Event and volunteers are required for matching." });
   }
-
-  try {
-    for (const volunteer_id of volunteers) {
-      await db.query("INSERT INTO event_volunteers (event_id, volunteer_id) VALUES (?, ?)", [event_id, volunteer_id]);
-    }
-    res.status(201).json({ message: "Volunteer matched to event successfully" });
-  } catch (error) {
-    console.error("Error matching volunteer to event:", error);
-    res.status(500).json({ message: "Database error" });
-  }
+  // Create match records for each volunteer
+  volunteerIds.forEach(vId => {
+    eventVolunteers.push({ event_id, volunteer_id: vId });
+  });
+  res.status(201).json({ message: "Volunteer matched to event successfully" });
 });
 
-// Delete Volunteer from an Event
-router.delete("/unmatch-volunteer/:event_id/:volunteer_id", async (req, res) => {
-  const { event_id, volunteer_id } = req.params;
-
-  try {
-    const [result] = await db.query("DELETE FROM event_volunteers WHERE event_id = ? AND volunteer_id = ?", [event_id, volunteer_id]);
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Match not found" });
-    }
-    res.status(200).json({ message: "Volunteer unmatched from event successfully" });
-  } catch (error) {
-    console.error("Error unmatching volunteer from event:", error);
-    res.status(500).json({ message: "Database error" });
+// DELETE /unmatch-volunteer/:event_id/:volunteer_id: Remove a match
+router.delete("/unmatch-volunteer/:event_id/:volunteer_id", (req, res) => {
+  const event_id = parseInt(req.params.event_id, 10);
+  const volunteer_id = parseInt(req.params.volunteer_id, 10);
+  const index = eventVolunteers.findIndex(match => match.event_id === event_id && match.volunteer_id === volunteer_id);
+  if (index === -1) {
+    return res.status(404).json({ message: "Match not found" });
   }
+  eventVolunteers.splice(index, 1);
+  res.status(200).json({ message: "Volunteer unmatched from event successfully" });
 });
 
 export default router;
