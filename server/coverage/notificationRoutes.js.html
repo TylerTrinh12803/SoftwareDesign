@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>0/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
@@ -97,38 +97,25 @@
 <a name='L32'></a><a href='#L32'>32</a>
 <a name='L33'></a><a href='#L33'>33</a>
 <a name='L34'></a><a href='#L34'>34</a>
-<a name='L35'></a><a href='#L35'>35</a>
-<a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a>
-<a name='L38'></a><a href='#L38'>38</a>
-<a name='L39'></a><a href='#L39'>39</a>
-<a name='L40'></a><a href='#L40'>40</a>
-<a name='L41'></a><a href='#L41'>41</a>
-<a name='L42'></a><a href='#L42'>42</a>
-<a name='L43'></a><a href='#L43'>43</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L35'></a><a href='#L35'>35</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -137,9 +124,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -151,40 +135,32 @@
 import express from 'express';
 const router = <span class="cstat-no" title="statement not covered" >express.Router();</span>
 &nbsp;
-// Get all notifications
-<span class="cstat-no" title="statement not covered" >router.get('/', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const [rows] = <span class="cstat-no" title="statement not covered" >await db.query('SELECT * FROM notifications');</span>
-<span class="cstat-no" title="statement not covered" >    res.json(rows);</span>
-  } catch (error) {
-<span class="cstat-no" title="statement not covered" >    console.error('Database error:', error);</span>
-<span class="cstat-no" title="statement not covered" >    res.status(500).json({ message: 'Error fetching notifications' });</span>
-  }
+// In-memory notifications data
+let notifications = <span class="cstat-no" title="statement not covered" >[</span>
+  { id: 1, title: 'Test Notification', message: 'This is a test.', unread: true },
+  { id: 2, title: 'Second Notification', message: 'Another test.', unread: true }
+];
+&nbsp;
+// GET all notifications
+<span class="cstat-no" title="statement not covered" >router.get('/', <span class="fstat-no" title="function not covered" >(r</span>eq, res) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  res.json(notifications);</span>
 });
 &nbsp;
-// Dismiss all notifications (move this route above the single delete route)
-<span class="cstat-no" title="statement not covered" >router.delete('/dismiss-all', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  try {</span>
-<span class="cstat-no" title="statement not covered" >    await db.query('UPDATE notifications SET unread = false');</span>
-<span class="cstat-no" title="statement not covered" >    res.send('All notifications have been marked as read.');</span>
-  } catch (error) {
-<span class="cstat-no" title="statement not covered" >    console.error('Database error:', error);</span>
-<span class="cstat-no" title="statement not covered" >    res.status(500).json({ message: 'Error marking all notifications as read' });</span>
-  }
+// Dismiss all notifications
+<span class="cstat-no" title="statement not covered" >router.delete('/dismiss-all', <span class="fstat-no" title="function not covered" >(r</span>eq, res) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  notifications = notifications.map(<span class="fstat-no" title="function not covered" >n </span>=&gt; (<span class="cstat-no" title="statement not covered" >{ ...n, unread: false })</span>);</span>
+<span class="cstat-no" title="statement not covered" >  res.send('All notifications have been marked as read.');</span>
 });
 &nbsp;
 // Dismiss a single notification
-<span class="cstat-no" title="statement not covered" >router.delete('/:id', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const [result] = <span class="cstat-no" title="statement not covered" >await db.query('DELETE FROM notifications WHERE id = ?', [req.params.id]);</span>
-<span class="cstat-no" title="statement not covered" >    if (result.affectedRows) {</span>
-<span class="cstat-no" title="statement not covered" >      res.send(`Notification with id ${req.params.id} has been dismissed.`);</span>
-    } else {
-<span class="cstat-no" title="statement not covered" >      res.status(404).send('Notification not found');</span>
-    }
-  } catch (error) {
-<span class="cstat-no" title="statement not covered" >    console.error('Database error:', error);</span>
-<span class="cstat-no" title="statement not covered" >    res.status(500).json({ message: 'Error dismissing notification' });</span>
+<span class="cstat-no" title="statement not covered" >router.delete('/:id', <span class="fstat-no" title="function not covered" >(r</span>eq, res) =&gt; {</span>
+  const id = <span class="cstat-no" title="statement not covered" >parseInt(req.params.id, 10);</span>
+  const index = <span class="cstat-no" title="statement not covered" >notifications.findIndex(<span class="fstat-no" title="function not covered" >n </span>=&gt; <span class="cstat-no" title="statement not covered" >n.id === id)</span>;</span>
+<span class="cstat-no" title="statement not covered" >  if (index === -1) {</span>
+<span class="cstat-no" title="statement not covered" >    res.status(404).send('Notification not found');</span>
+  } else {
+<span class="cstat-no" title="statement not covered" >    notifications.splice(index, 1);</span>
+<span class="cstat-no" title="statement not covered" >    res.send(`Notification with id ${id} has been dismissed.`);</span>
   }
 });
 &nbsp;
@@ -196,7 +172,7 @@ export default router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-07T21:11:02.893Z
+                at 2025-03-08T06:41:02.985Z
             </div>
         <script src="prettify.js"></script>
         <script>
