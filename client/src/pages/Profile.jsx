@@ -43,6 +43,9 @@ const Profile = () => {
     };
 
     const [selectedDate, setSelectedDate] = useState('');
+    const [isEditing, setIsEditing] = useState(true); // Add editing state
+    const [submittedData, setSubmittedData] = useState(null); // Store submitted data
+    const [formErrors, setFormErrors] = useState({}); // Add state for form errors
 
     const handleDateChange = (e) => {
         const newDate = e.target.value;
@@ -59,102 +62,172 @@ const Profile = () => {
         });
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const errors = {}; // Initialize errors object
+
+        // Validation logic
+        if (!formData.fullName.trim()) {
+            errors.fullName = "Full Name is required";
+        }
+
+        if (!formData.zipCode.trim()) {
+            errors.zipCode = "Zip Code is required";
+        } else if (!/^\d{5}(?:[- ]?\d{4})?$/.test(formData.zipCode)) {
+            errors.zipCode = "Invalid Zip Code";
+        }
+
+        if (!formData.address1.trim()) {
+            errors.address1 = "Address 1 is required";
+        }
+
+        if (!formData.city.trim()) {
+            errors.city = "City is required";
+        }
+
+        if (!formData.state.trim()) {
+            errors.state = "State is required";
+        }
+
+        if (formData.availability.length === 0) {
+            errors.availability = "At least one availability is required";
+        }
+
+        setFormErrors(errors); // Set errors state
+
+        if (Object.keys(errors).length === 0) {
+            setSubmittedData(formData);
+            setIsEditing(false);
+        }
+    };
+
+    const handleEditClick = () => {
+        setIsEditing(true); // Switch back to editable view
+    };
+
     return (
         <div className="profile-management-page">
-        <div className="profile-management-form">
-            <h2>Profile Management Form</h2>
-            
-            <form>
-                {/* Full Name & Zip Code */}
-                <div className="form-row">
-                    <div className="form-group">
-                        <label htmlFor="fullName">Full Name</label>
-                        <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="zipCode">Zip Code</label>
-                        <input type="text" name="zipCode" value={formData.zipCode} onChange={handleInputChange} />
-                    </div>
-                </div>
-
-                {/* Address 1 & Address 2 */}
-                <div className="form-row">
-                    <div className="form-group">
-                        <label htmlFor="address1">Address 1</label>
-                        <input type="text" name="address1" value={formData.address1} onChange={handleInputChange} />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="address2">Address 2</label>
-                        <input type="text" name="address2" value={formData.address2} onChange={handleInputChange} />
-                    </div>
-                </div>
-
-                {/* City & State */}
-                <div className="form-row">
-                    <div className="form-group">
-                        <label htmlFor="city">City</label>
-                        <input type="text" name="city" value={formData.city} onChange={handleInputChange} />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="state">State</label>
-                        <select name="state" value={formData.state} onChange={handleInputChange}>
-                            <option value="">Select a state</option>
-                            {states.map(state => <option key={state} value={state}>{state}</option>)}
-                        </select>
-                    </div>
-                </div>
-
-                {/* Volunteer Skills Dropdown */}
-                <div className="form-group">
-                    <label>Volunteer Skills</label>
-                    <select className="wide-dropdown" onChange={handleSkillChange} value="">
-                        <option value="" disabled>Select a skill</option>
-                        {volunteerSkills.map(skill => (
-                            <option key={skill} value={skill}>{skill}</option>
-                        ))}
-                    </select>
-                    <div className="skills-tags">
-                        {formData.skills.map((skill) => (
-                            <div key={skill} className="skill-tag">
-                                {skill}
-                                <button type="button" onClick={() => handleDeleteSkill(skill)}>
-                                    &times;
-                                </button>
+            <div className="profile-management-form">
+                <h2>Profile Management Form</h2>
+                
+                {isEditing ? ( // Conditionally render form or submitted data
+                    <form onSubmit={handleSubmit}>
+                        {/* ... (form inputs) ... */}
+                        {/* Full Name & Zip Code */}
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="fullName">Full Name</label>
+                                <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} />
                             </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Preferences */}
-                <div className="form-group">
-                    <label>Preferences</label>
-                    <textarea name="preferences" value={formData.preferences} onChange={handleInputChange}></textarea>
-                </div>
-
-                {/* Availability (Multi-Date Selection) */}
-                <div className="form-group">
-                    <label>Availability</label>
-                    <div className="availability-input">
-                        <input type="date" 
-                            value={selectedDate} 
-                            onChange={handleDateChange} 
-                            min={today} />
-                    </div>
-                    <div className="availability-tags">
-                        {formData.availability.map((date) => (
-                            <div key={date} className="availability-tag">
-                                {date}
-                                <button type="button" onClick={() => handleDeleteDate(date)}>
-                                    &times;
-                                </button>
+                            <div className="form-group">
+                                <label htmlFor="zipCode">Zip Code</label>
+                                <input type="text" name="zipCode" value={formData.zipCode} onChange={handleInputChange} />
                             </div>
-                        ))}
-                    </div>
-                </div>
+                        </div>
 
-                <button type="submit">Save Profile</button>
-            </form>
-        </div>
+                        {/* Address 1 & Address 2 */}
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="address1">Address 1</label>
+                                <input type="text" name="address1" value={formData.address1} onChange={handleInputChange} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="address2">Address 2</label>
+                                <input type="text" name="address2" value={formData.address2} onChange={handleInputChange} />
+                            </div>
+                        </div>
+
+                        {/* City & State */}
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="city">City</label>
+                                <input type="text" name="city" value={formData.city} onChange={handleInputChange} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="state">State</label>
+                                <select name="state" value={formData.state} onChange={handleInputChange}>
+                                    <option value="">Select a state</option>
+                                    {states.map(state => <option key={state} value={state}>{state}</option>)}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Volunteer Skills Dropdown */}
+                        <div className="form-group">
+                            <label>Volunteer Skills</label>
+                            <select className="wide-dropdown" onChange={handleSkillChange} value="">
+                                <option value="" disabled>Select a skill</option>
+                                {volunteerSkills.map(skill => (
+                                    <option key={skill} value={skill}>{skill}</option>
+                                ))}
+                            </select>
+                            <div className="skills-tags">
+                                {formData.skills.map((skill) => (
+                                    <div key={skill} className="skill-tag">
+                                        {skill}
+                                        <button type="button" onClick={() => handleDeleteSkill(skill)}>
+                                            &times;
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Preferences */}
+                        <div className="form-group">
+                            <label>Preferences</label>
+                            <textarea name="preferences" value={formData.preferences} onChange={handleInputChange}></textarea>
+                        </div>
+
+                        {/* Availability (Multi-Date Selection) */}
+                        <div className="form-group">
+                            <label>Availability</label>
+                            <div className="availability-input">
+                                <input type="date" 
+                                    value={selectedDate} 
+                                    onChange={handleDateChange} 
+                                    min={today} />
+                            </div>
+                            <div className="availability-tags">
+                                {formData.availability.map((date) => (
+                                    <div key={date} className="availability-tag">
+                                        {date}
+                                        <button type="button" onClick={() => handleDeleteDate(date)}>
+                                            &times;
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Display errors */}
+                        {formErrors.fullName && <p className="error">{formErrors.fullName}</p>}
+                        {formErrors.zipCode && <p className="error">{formErrors.zipCode}</p>}
+                        {formErrors.address1 && <p className="error">{formErrors.address1}</p>}
+                        {formErrors.city && <p className="error">{formErrors.city}</p>}
+                        {formErrors.state && <p className="error">{formErrors.state}</p>}
+                        {formErrors.availability && <p className="error">{formErrors.availability}</p>}
+
+                        <button type="submit">Save Profile</button>
+                    </form>
+                ) : (
+                    <div>
+                        <h3>Submitted Profile Information</h3>
+                        <p>Full Name: {submittedData.fullName}</p>
+                        <p>Address: {submittedData.address1}, {submittedData.address2}</p>
+                        <p>City: {submittedData.city}</p>
+                        <p>State: {submittedData.state}</p>
+                        <p>Zip Code: {submittedData.zipCode}</p>
+                        <p>Skills: {submittedData.skills.join(', ')}</p>
+                        <p>Preferences: {submittedData.preferences}</p>
+                        <p>Availability: {submittedData.availability.join(', ')}</p>
+                        <button type="button" onClick={handleEditClick}>
+                            Edit Profile
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
