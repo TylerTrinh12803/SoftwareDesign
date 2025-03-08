@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../style/Profile.css";
 
 const Profile = () => {
@@ -30,7 +30,7 @@ const Profile = () => {
 
     const handleSkillChange = (e) => {
         const selectedSkill = e.target.value;
-        if (selectedSkill && !formData.skills.includes(selectedSkill)) {
+        if (selectedSkill && !formData.skills?.includes(selectedSkill)) {
             setFormData({ ...formData, skills: [...formData.skills, selectedSkill] });
         }
     };
@@ -62,8 +62,8 @@ const Profile = () => {
         });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = async (e) => { //make async
+        e.preventDefault(); //prevent default
 
         const errors = {}; // Initialize errors object
 
@@ -96,15 +96,56 @@ const Profile = () => {
 
         setFormErrors(errors); // Set errors state
 
-        if (Object.keys(errors).length === 0) {
-            setSubmittedData(formData);
-            setIsEditing(false);
-        }
+        if (Object.keys(errors).length === 0) { //only runs if no errors.
+            try {
+                const response = await fetch('http://localhost:3360/api/profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+                
+                if (response.ok) {
+                    const data = await response.json(); // Get response data
+                    if (data.errors) { // Check for validation errors from server
+                        setFormErrors(data.errors);
+                    } else {
+                        setSubmittedData(formData);
+                        setIsEditing(false);
+                    }
+                } else {
+                    console.error('Failed to submit profile');
+                }
+            } catch (error) {
+                console.error('Error submitting profile:', error);
+            }
+        };
     };
 
     const handleEditClick = () => {
         setIsEditing(true); // Switch back to editable view
     };
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await fetch('http://localhost:3360/api/profile');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data) {
+                        setSubmittedData(data);
+                        setFormData(data);
+                        setIsEditing(false);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+            }
+        };
+
+        fetchProfile(); // Fetch profile on component mount
+    },);
 
     return (
         <div className="profile-management-page">
@@ -114,15 +155,17 @@ const Profile = () => {
                 {isEditing ? ( // Conditionally render form or submitted data
                     <form onSubmit={handleSubmit}>
                         {/* ... (form inputs) ... */}
-                        {/* Full Name & Zip Code */}
+                        {/* full name and zip code */}
                         <div className="form-row">
                             <div className="form-group">
                                 <label htmlFor="fullName">Full Name</label>
                                 <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} />
+                                {formErrors.fullName && <p className="error">{formErrors.fullName}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="zipCode">Zip Code</label>
                                 <input type="text" name="zipCode" value={formData.zipCode} onChange={handleInputChange} />
+                                {formErrors.zipCode && <p className="error">{formErrors.zipCode}</p>}
                             </div>
                         </div>
 
@@ -131,6 +174,7 @@ const Profile = () => {
                             <div className="form-group">
                                 <label htmlFor="address1">Address 1</label>
                                 <input type="text" name="address1" value={formData.address1} onChange={handleInputChange} />
+                                {formErrors.address1 && <p className="error">{formErrors.address1}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="address2">Address 2</label>
@@ -143,6 +187,7 @@ const Profile = () => {
                             <div className="form-group">
                                 <label htmlFor="city">City</label>
                                 <input type="text" name="city" value={formData.city} onChange={handleInputChange} />
+                                {formErrors.city && <p className="error">{formErrors.city}</p>}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="state">State</label>
@@ -179,10 +224,10 @@ const Profile = () => {
                             <label>Preferences</label>
                             <textarea name="preferences" value={formData.preferences} onChange={handleInputChange}></textarea>
                         </div>
-
-                        {/* Availability (Multi-Date Selection) */}
+                        
+                        {/* Availability (Multi-Date Selection) */} 
                         <div className="form-group">
-                            <label>Availability</label>
+                            <label>Availability</label> 
                             <div className="availability-input">
                                 <input type="date" 
                                     value={selectedDate} 
@@ -215,16 +260,17 @@ const Profile = () => {
                     <div>
                         <h3>Submitted Profile Information</h3>
                         <p>Full Name: {submittedData.fullName}</p>
-                        <p>Address: {submittedData.address1}, {submittedData.address2}</p>
+                        <p>Address: {submittedData?.address1}, {submittedData?.address2}</p>
                         <p>City: {submittedData.city}</p>
                         <p>State: {submittedData.state}</p>
                         <p>Zip Code: {submittedData.zipCode}</p>
-                        <p>Skills: {submittedData.skills.join(', ')}</p>
+                        <p>Skills: {submittedData?.skills?.join(', ')}</p>
                         <p>Preferences: {submittedData.preferences}</p>
-                        <p>Availability: {submittedData.availability.join(', ')}</p>
+                        <p>Availability: {submittedData?.availability?.join(', ')}</p>
                         <button type="button" onClick={handleEditClick}>
                             Edit Profile
                         </button>
+                        {formErrors.state && <p className="error">{formErrors.state}</p>}
                     </div>
                 )}
             </div>
