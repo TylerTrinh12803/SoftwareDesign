@@ -41,11 +41,14 @@ const Home = () => {
         try {
             const response = await fetch("http://localhost:3360/events");
             const data = await response.json();
-            setEvents(data);
+            console.log("Fetched events data:", data); // Check if this is an array
+            setEvents(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Error fetching events:", error);
+            setEvents([]); // Ensure events remains an array
         }
     };
+    
 
     // Check if the user is logged in
     useEffect(() => {

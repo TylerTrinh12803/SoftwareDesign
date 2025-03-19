@@ -39,23 +39,27 @@ const Update = () => {
     try {
       const response = await fetch(`http://localhost:3360/events/${id}`);
       const data = await response.json();
-
+  
       setEventName(data.event_name);
       setEventDate(data.event_date);
       setLocation(data.location);
       setDescription(data.description);
       setUrgency(data.urgency);
-      // Assuming the API returns a comma-separated string of skills
-      setRequiredSkills(
-        data.required_skills
-          ? data.required_skills.split(",").map((skill) => skill.trim())
-          : []
-      );
+  
+      console.log("Raw required_skills from API:", data.required_skills); // Debugging log
+  
+      // Ensure requiredSkills is stored as an array of skill IDs
+      if (Array.isArray(data.required_skills)) {
+        setRequiredSkills(data.required_skills.map(skill => skill.skill_id)); 
+      } else {
+        setRequiredSkills([]);
+      }
+  
     } catch (error) {
       console.error("Error fetching event:", error);
     }
-  };
-
+  };  
+  
   // Fetch all skills
   const fetchSkills = async () => {
     try {
@@ -77,7 +81,11 @@ const Update = () => {
       console.error("Error fetching volunteers:", error);
     }
   };
-
+  useEffect(() => {
+    console.log("All skills from API:", skills);
+    console.log("Event skills (requiredSkills):", requiredSkills);
+  }, [skills, requiredSkills]);
+  
   // Handle Updating an Event
   const handleUpdateEvent = async (e) => {
     e.preventDefault();
@@ -122,7 +130,9 @@ const Update = () => {
       setMessage("Server error while updating event.");
     }
   };
-
+  const removeSkill = (skillId) => {
+    setRequiredSkills((prevSkills) => prevSkills.filter((id) => id !== skillId));
+  };  
   // Handle Adding a New Skill
   const handleAddSkill = async (e) => {
     e.preventDefault();
@@ -221,23 +231,40 @@ const Update = () => {
               <option value="medium">Medium</option>
               <option value="low">Low</option>
             </select>
-            {/* New multi-select for Required Skills */}
+            {/* Required Skills Label */}
             <label>Required Skills:</label>
+
+            {/* Skill Selection Dropdown */}
             <select
-              multiple
-              value={requiredSkills}
-              onChange={(e) =>
-                setRequiredSkills(
-                  Array.from(e.target.selectedOptions, (option) => option.value)
-                )
-              }
+              onChange={(e) => {
+                const skillId = Number(e.target.value); // Convert to number
+                if (skillId && !requiredSkills.includes(skillId)) {
+                  setRequiredSkills([...requiredSkills, skillId]);
+                }
+              }}
             >
+              <option value="">Select a Skill</option>
               {skills.map((skill) => (
-                <option key={skill.skill_id} value={skill.skill_name}>
+                <option key={skill.skill_id} value={skill.skill_id}>
                   {skill.skill_name}
                 </option>
               ))}
             </select>
+            {/* Selected Skills Display */}
+            <div className="selected-skills">
+              {requiredSkills.length > 0 ? (
+                requiredSkills.map((skillId) => {
+                  const skill = skills.find((s) => Number(s.skill_id) === Number(skillId));
+                  return skill ? (
+                    <div key={skillId} className="skill-bubble" onClick={() => removeSkill(skillId)}>
+                      {skill.skill_name} ✖
+                    </div>
+                  ) : null;
+                })
+              ) : (
+                <p>No skills selected</p>
+              )}
+            </div>
             <button type="submit">Update Event</button>
           </form>
         </div>

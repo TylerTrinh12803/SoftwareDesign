@@ -159,6 +159,10 @@ const MatchingAdd = () => {
     }
   };  
 
+  const removeSkill = (skillId) => {
+    setRequiredSkills((prevSkills) => prevSkills.filter((id) => id !== skillId));
+  };  
+  
   // Handle Volunteer Match Submission
   const handleSubmitMatch = async (event) => {
     event.preventDefault();
@@ -210,7 +214,13 @@ const MatchingAdd = () => {
             </select>
 
             {/* Skill Selection */}
-            <select onChange={(e) => setRequiredSkills([...requiredSkills, e.target.value])}>
+            <select onChange={(e) => {
+                const skillId = Number(e.target.value);  // Convert to number
+                if (skillId && !requiredSkills.includes(skillId)) {
+                  setRequiredSkills((prevSkills) => [...prevSkills, skillId]);
+                }
+              }}
+            >
               <option value="">Select a Skill</option>
               {skills.map((skill) => (
                 <option key={skill.skill_id} value={skill.skill_id}>
@@ -218,6 +228,17 @@ const MatchingAdd = () => {
                 </option>
               ))}
             </select>
+            {/* Selected Skills Display */}
+            <div className="selected-skills">
+              {requiredSkills.map((skillId) => {
+                const skill = skills.find((s) => Number(s.skill_id) === Number(skillId)); // Ensure correct match
+                return skill ? (
+                  <div key={skillId} className="skill-bubble" onClick={() => removeSkill(skillId)}>
+                    {skill.skill_name} ✖
+                  </div>
+                ) : null;
+              })}
+            </div>
 
             {/* Add Skill Button */}
             <button type="button" onClick={() => setShowSkillModal(true)}>
