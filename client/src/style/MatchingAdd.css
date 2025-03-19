@@ -76,30 +76,28 @@ button:hover {
     flex-wrap: wrap;
     gap: 10px; /* Adds spacing between bubbles */
     margin-top: 10px;
-}
-
-/* 🔹 Entire bubble is clickable */
-.skill-bubble {
+  }
+  
+  .skill-bubble {
     display: flex;
     align-items: center;
     justify-content: center;
     background: #007bff;
     color: white;
-    padding: 8px 15px; /* Adjust padding for better appearance */
+    padding: 8px 15px;
     border-radius: 20px;
     font-size: 14px;
     font-weight: bold;
     white-space: nowrap;
-    min-width: 100px; /* Ensures bubble is big enough */
-    cursor: pointer; /* Shows it's clickable */
+    min-width: 100px;
+    cursor: pointer;
     transition: background 0.3s ease-in-out;
-}
-
-/* 🔹 Hover effect to indicate clickability */
-.skill-bubble:hover {
+  }
+  
+  .skill-bubble:hover {
     background: #0056b3;
-}
-
+  }
+  
 /* 🔹 Remove the small X button */
 .skill-bubble button {
     display: none; /* Hide the button since the whole bubble is clickable */
