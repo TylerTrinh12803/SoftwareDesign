@@ -1,33 +1,63 @@
-// Routes/notificationRoutes.js
-import express from 'express';
+import express from "express";
+import cors from "cors";
+import db from "../config/db.js"; 
+
 const router = express.Router();
+router.use(cors()); // Allow cross-origin requests
 
-// In-memory notifications data
-let notifications = [
-  { id: 1, title: 'Test Notification', message: 'This is a test.', unread: true },
-  { id: 2, title: 'Second Notification', message: 'Another test.', unread: true }
-];
+// GET notifications for a specific user
+router.get("/", async (req, res) => {
+  try {
+    const { volunteer_id } = req.query;
+    if (!volunteer_id) {
+      return res.status(400).json({ message: "volunteer_id is required" });
+    }
 
-// GET all notifications
-router.get('/', (req, res) => {
-  res.json(notifications);
+    const [notifications] = await db.query(
+      "SELECT * FROM notification WHERE volunteer_id = ? ORDER BY created_at DESC",
+      [volunteer_id]
+    );
+
+    res.json(notifications);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
-// Dismiss all notifications
-router.delete('/dismiss-all', (req, res) => {
-  notifications = notifications.map(n => ({ ...n, unread: false }));
-  res.send('All notifications have been marked as read.');
+// Dismiss all notifications (mark as read)
+router.delete("/dismiss-all/:userId", async (req, res) => {
+  const { userId } = req.params; // Get user ID from request params
+  try {
+    const [result] = await db.query(
+      "DELETE FROM notification WHERE volunteer_id = ?", 
+      [userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "No notifications found for this user." });
+    }
+
+    res.json({ message: "All notifications deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting notifications:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 });
+
 
 // Dismiss a single notification
-router.delete('/:id', (req, res) => {
+router.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
-  const index = notifications.findIndex(n => n.id === id);
-  if (index === -1) {
-    res.status(404).send('Notification not found');
-  } else {
-    notifications.splice(index, 1);
-    res.send(`Notification with id ${id} has been dismissed.`);
+  try {
+    const [result] = await db.query("DELETE FROM notification WHERE id = ?", [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+    res.json({ message: `Notification with id ${id} has been dismissed.` });
+  } catch (error) {
+    console.error("Error deleting notification:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

@@ -1,5 +1,5 @@
 import express from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import db from "../config/db.js"; // Import database connection
 
 const router = express.Router();

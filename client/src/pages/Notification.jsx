@@ -2,34 +2,68 @@ import React, { useEffect, useState } from 'react';
 import '../style/Notification.css';
 
 const Notification = () => {
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'New Event Assigned', message: 'You have been assigned to the Community Cleanup event.', unread: true },
-    { id: 2, title: 'Event Update', message: 'The location for the Charity Concert has been changed to Central Park.', unread: true },
-    { id: 3, title: 'Reminder', message: 'Remember to check in for the upcoming Tech for Good Hackathon.', unread: true },
-    { id: 4, title: 'New Event Assigned', message: 'You have been assigned to the Pumpkin Patch Setup.', unread: true },
-    { id: 5, title: 'Event Update', message: 'The Charity Ball has been canceled.', unread: true }
-  ]);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    // Add the background class when the Notification component mounts
-    document.body.classList.add('notification-background');
-    // Remove the background class when the component unmounts
-    return () => {
-      document.body.classList.remove('notification-background');
+    const fetchNotifications = async () => {
+      const storedUserId = localStorage.getItem("userId"); // Ensure it's retrieved properly
+      if (!storedUserId) {
+        console.error("No user logged in.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3360/notifications?volunteer_id=${storedUserId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch notifications");
+        }
+        const data = await response.json();
+        setNotifications(data);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
     };
+
+    fetchNotifications();
   }, []);
 
-  const dismissNotification = (id) => {
-    setNotifications(notifications.filter(notification => notification.id !== id));
+  const dismissNotification = async (id) => {
+    try {
+      await fetch(`http://localhost:3360/notifications/${id}`, { method: 'DELETE' });
+      setNotifications(notifications.filter(notification => notification.id !== id));
+    } catch (error) {
+      console.error('Error dismissing notification:', error);
+    }
   };
 
-  const dismissAllNotifications = () => {
-    setNotifications([]);
-  };
+  const dismissAllNotifications = async () => {
+    try {
+      const storedUserId = localStorage.getItem("userId"); // Ensure it's retrieved properly
+      if (!storedUserId) {
+        console.error("No user logged in.");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3360/notifications/dismiss-all/${storedUserId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to dismiss all notifications");
+      }
+
+      // Remove all notifications from state
+      setNotifications([]);
+      
+    } catch (error) {
+      console.error('Error dismissing all notifications:', error);
+    }
+};
+
+
 
   return (
     <>
-      {/* Back to Home Button */}
       <button className="back-home-button" onClick={() => window.location.href = "/"}>Back to Home</button>
 
       <div className="notification-container">
@@ -41,7 +75,7 @@ const Notification = () => {
         {notifications.length > 0 ? notifications.map(notification => (
           <div key={notification.id} className="notification-item">
             <div className="notification-content">
-              <h4>{notification.title}</h4>
+              <h4>{notification.title || "Notification"}</h4>
               <p>{notification.message}</p>
             </div>
             <button className="dismiss-btn" onClick={() => dismissNotification(notification.id)}>Dismiss</button>

@@ -8,15 +8,22 @@ import profileRoutes from "./Routes/profileRoutes.js";
 
 const app = express();
 
+const corsOptions = {
+  origin: "http://localhost:3000", // Allow only frontend origin
+  methods: "GET,POST,DELETE,PUT",
+  allowedHeaders: "Content-Type,Authorization",
+};
+app.use(cors(corsOptions));
+
 // Middleware
-app.use(cors());
+//app.use(cors());
 app.use(express.json());
 
 // Routes
 app.use(authRoutes);
 app.use(userRoutes);
 app.use(eventRoutes);
-app.use(notificationRoutes);
+app.use("/notifications", notificationRoutes);
 app.use('/api/profile', profileRoutes);
 
 
