@@ -36,14 +36,14 @@ router.get("/skills", async (req, res) => {
 
 router.delete("/skills/:id", async (req, res) => {
   const { id } = req.params;
-
+  if (isNaN(Number(id))) {
+    return res.status(500).json({ message: "Database error" });
+  }
   try {
     const [result] = await db.query("DELETE FROM skills WHERE skill_id = ?", [id]);
-
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Skill not found" });
     }
-
     res.status(200).json({ message: "Skill deleted successfully" });
   } catch (error) {
     console.error("Error deleting skill:", error);
@@ -56,15 +56,15 @@ router.delete("/skills/:id", async (req, res) => {
 router.post("/events", async (req, res) => {
   const { event_name, description, location, urgency, event_date, skills } = req.body;
 
-  if (!event_name || !description || !location || !urgency || !event_date || !skills) {
+  // Check for missing fields and ensure skills is a non-empty array.
+  if (!event_name || !description || !location || !urgency || !event_date || 
+      !Array.isArray(skills) || skills.length === 0) {
     return res.status(400).json({ message: "All event fields and skills are required." });
   }
 
   // Convert event_date to a JavaScript Date object
   const eventDateObj = new Date(event_date);
   const today = new Date();
-
-  // Set time to midnight to compare only the date, not the time
   today.setHours(0, 0, 0, 0);
   eventDateObj.setHours(0, 0, 0, 0);
 
@@ -73,25 +73,23 @@ router.post("/events", async (req, res) => {
   }
 
   try {
-    // Insert event into database
     const [eventResult] = await db.query(
       "INSERT INTO events (event_name, description, location, urgency, event_date) VALUES (?, ?, ?, ?, ?)",
       [event_name, description, location, urgency, event_date]
     );
-
     const event_id = eventResult.insertId;
 
     // Assign skills to event
     for (const skill_id of skills) {
       await db.query("INSERT INTO event_skills (event_id, skill_id) VALUES (?, ?)", [event_id, skill_id]);
     }
-
     res.status(201).json({ message: "Event created successfully", event_id });
   } catch (error) {
     console.error("Error creating event:", error);
     res.status(500).json({ message: "Database error" });
   }
 });
+
 router.get("/events", async (req, res) => {
   try {
     const [events] = await db.query(
@@ -118,10 +116,11 @@ router.get("/events", async (req, res) => {
   }
 });
 
-
 router.delete("/events/:id", async (req, res) => {
   const { id } = req.params;
-  
+  if (isNaN(Number(id))) {
+    return res.status(500).json({ message: "Database error" });
+  }
   try {
     await db.query("DELETE FROM events WHERE event_id = ?", [id]);
     res.json({ message: "Event deleted successfully!" });
@@ -131,9 +130,12 @@ router.delete("/events/:id", async (req, res) => {
   }
 });
 
+
 router.get("/events/:id", async (req, res) => {
   const { id } = req.params;
-
+  if (isNaN(Number(id))) {
+    return res.status(500).json({ message: "Database error" });
+  }
   try {
     const [events] = await db.query(
       `SELECT e.event_id, e.event_name, e.description, e.location, e.urgency, 
@@ -146,11 +148,9 @@ router.get("/events/:id", async (req, res) => {
       GROUP BY e.event_id`,
       [id]
     );
-
     if (events.length === 0) {
       return res.status(404).json({ message: "Event not found" });
     }
-
     res.json(events[0]);
   } catch (error) {
     console.error("Error fetching event:", error);

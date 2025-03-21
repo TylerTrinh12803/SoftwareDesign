@@ -5,6 +5,10 @@ import userRoutes from "./Routes/userRoutes.js";
 import eventRoutes from "./Routes/eventRoutes.js";
 import notificationRoutes from "./Routes/notificationRoutes.js";
 import profileRoutes from "./Routes/profileRoutes.js";
+import volunteersRoutes from "./Routes/volunteers.js"; 
+import matchingRoutes from "./Routes/matching.js"; // Ensure this is correct
+
+
 
 const app = express();
 
@@ -24,7 +28,10 @@ app.use(authRoutes);
 app.use(userRoutes);
 app.use(eventRoutes);
 app.use("/notifications", notificationRoutes);
-app.use('/api/profile', profileRoutes);
+app.use('/api/profile', profileRoutes); 
+app.use("/", volunteersRoutes);
+app.use("/", matchingRoutes);
+
 
 
 // Start the server

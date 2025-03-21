@@ -1,69 +1,58 @@
-import express from "express";
-import db from "../config/db.js"; // Ensure this connects to MySQL
+// server/test/notificationRoutes.test.js
+import express from 'express';
+import request from 'supertest';
+import { expect } from 'chai';
+import notificationRoutes from '../Routes/notificationRoutes.js';
 
-const router = express.Router();
+const app = express();
+app.use(express.json());
+app.use('/notifications', notificationRoutes);
 
-// GET notifications for a specific user
-router.get("/", async (req, res) => {
-  try {
-    const { volunteer_id } = req.query; // Get volunteer ID from query parameters
+describe('Notification Routes (No DB)', () => {
+  // Reset the in-memory notifications before each test, if needed.
+  beforeEach(() => {
+    // Reinitialize the notifications array in the route module.
+    // One way is to re-import the module or add a reset function.
+    // For simplicity, if your tests run in sequence in one process,
+    // you might call a reset function that you export from the module.
+    // Here, we'll assume tests run in a fresh environment.
+  });
 
-    if (!volunteer_id) {
-      return res.status(400).json({ message: "volunteer_id is required" });
-    }
+  describe('GET /notifications', () => {
+    it('should return a list of notifications', async () => {
+      const res = await request(app).get('/notifications');
+      expect(res.status).to.equal(200);
+      expect(res.body).to.be.an('array');
+      expect(res.body).to.have.lengthOf(2);
+      expect(res.body[0]).to.include({ id: 1, title: 'Test Notification' });
+    });
+  });
 
-    const volunteerIdInt = parseInt(volunteer_id, 10);
+  describe('DELETE /notifications/dismiss-all', () => {
+    it('should mark all notifications as read', async () => {
+      const res = await request(app).delete('/notifications/dismiss-all');
+      expect(res.status).to.equal(200);
+      expect(res.text).to.equal('All notifications have been marked as read.');
 
-    const [notifications] = await db.query(
-      "SELECT id, message, status, created_at FROM notification WHERE volunteer_id = ? ORDER BY created_at DESC",
-      [volunteerIdInt]
-    );
+      // Verify that all notifications are now marked as read
+      const getRes = await request(app).get('/notifications');
+      getRes.body.forEach(n => {
+        expect(n.unread).to.be.false;
+      });
+    });
+  });
 
-    res.json(notifications);
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-    res.status(500).json({ message: "Server error" });
-  }
+  describe('DELETE /notifications/:id', () => {
+    it('should dismiss a notification if found', async () => {
+      const res = await request(app).delete('/notifications/1');
+      expect(res.status).to.equal(200);
+      expect(res.text).to.contain('Notification with id 1 has been dismissed.');
+    });
+
+    it('should return 404 if the notification is not found', async () => {
+      const res = await request(app).delete('/notifications/999');
+      expect(res.status).to.equal(404);
+      expect(res.text).to.equal('Notification not found');
+    });
+  });
 });
-
-// Dismiss (delete) a single notification
-router.delete("/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  try {
-    const [result] = await db.query("DELETE FROM notification WHERE id = ?", [id]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Notification not found" });
-    }
-    
-    res.json({ message: `Notification with ID ${id} dismissed.` });
-  } catch (error) {
-    console.error("Error dismissing notification:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// Dismiss all notifications (mark as read)
-router.delete("/dismiss-all/:userId", async (req, res) => {
-  const { userId } = req.params; // Get user ID from request params
-  try {
-    const [result] = await db.query(
-      "DELETE FROM notification WHERE volunteer_id = ?", 
-      [userId]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "No notifications found for this user." });
-    }
-
-    res.json({ message: "All notifications deleted successfully." });
-  } catch (error) {
-    console.error("Error deleting notifications:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-
-
-
-export default router;
