@@ -22,7 +22,8 @@ app.use('/api/profile', profileRoutes);
 
 // Start the server
 const PORT = 3360;
+if (process.env.NODE_ENV !== 'test') {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-});
+});}
 

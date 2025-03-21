@@ -3,6 +3,7 @@ import express from "express";
 import request from "supertest";
 import { expect } from "chai";
 import volunteerRoutes from "../Routes/volunteeraddRoutes.js";
+import db from "../config/db.js";
 
 // Create an Express app for testing
 const app = express();
@@ -72,4 +73,8 @@ describe("Volunteer Routes (In-Memory)", () => {
       expect(res.body).to.have.property("message", "Match not found");
     });
   });
+});
+
+after(async () => {
+  await db.end(); // ✅ Close DB connection ONCE globally
 });
