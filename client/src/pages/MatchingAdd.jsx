@@ -250,29 +250,30 @@ const MatchingAdd = () => {
         <div className="form-box">
           <h2>Volunteer Match Form</h2>
           <form onSubmit={handleSubmitMatch}>
-            <select
-              value={selectedVolunteers[0] || ""}
-              onChange={(e) => setSelectedVolunteers([parseInt(e.target.value)])}
+          <select
+             value={selectedVolunteers[0] || ""}
+             onChange={(e) => setSelectedVolunteers([parseInt(e.target.value)])}
             >
-              <option value="">Select a Volunteer</option>
+            <option value="">Select a Volunteer</option>
               {volunteers.map((volunteer) => (
-                <option key={volunteer.user_id} value={volunteer.user_id}>
-                  {volunteer.email}
-                </option>
-              ))}
-            </select>
+            <option key={volunteer.user_id} value={volunteer.user_id}>
+              {volunteer.full_name} {/* Now displaying full name */}
+            </option>
+            ))}
+          </select>
 
-            <select
-              value={selectedEvent}
-              onChange={(e) => setSelectedEvent(parseInt(e.target.value))}
+
+          <select
+            value={selectedEvent}
+             onChange={(e) => setSelectedEvent(parseInt(e.target.value))}
             >
-              <option value="">Select an Event</option>
+            <option value="">Select an Event</option>
               {events.map((event) => (
-                <option key={event.event_id} value={event.event_id}>
-                  {event.event_name}
-                </option>
-              ))}
-            </select>
+              <option key={event.event_id} value={event.event_id}>
+              {event.event_name} {/* Event name displayed properly */}
+            </option>
+            ))}
+          </select>
 
             <button type="submit">Match Volunteer</button>
           </form>
