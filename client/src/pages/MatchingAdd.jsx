@@ -13,10 +13,11 @@ const MatchingAdd = () => {
   const [urgency, setUrgency] = useState("");
   const [requiredSkills, setRequiredSkills] = useState([]);
   const [selectedSkillToDelete, setSelectedSkillToDelete] = useState("");
+
   // Skill Management State
   const [newSkill, setNewSkill] = useState("");
   const [skills, setSkills] = useState([]);
-  const [showSkillModal, setShowSkillModal] = useState(false); // Modal state
+  const [showSkillModal, setShowSkillModal] = useState(false);
 
   // Volunteer Matching State
   const [volunteers, setVolunteers] = useState([]);
@@ -24,10 +25,9 @@ const MatchingAdd = () => {
   const [selectedVolunteers, setSelectedVolunteers] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState("");
 
-  // Messages & Errors
+  // Messages
   const [message, setMessage] = useState("");
 
-  // Redirect non-admin users
   useEffect(() => {
     const role = localStorage.getItem("role");
     if (role !== "admin") {
@@ -38,7 +38,6 @@ const MatchingAdd = () => {
     fetchVolunteers();
   }, [navigate]);
 
-  // Fetch Data from Backend
   const fetchEvents = async () => {
     try {
       const response = await fetch("http://localhost:3360/events");
@@ -63,34 +62,42 @@ const MatchingAdd = () => {
     try {
       const response = await fetch("http://localhost:3360/volunteers");
       const data = await response.json();
-      setVolunteers(data);
+      console.log("Fetched volunteers:", data);
+  
+      // ✅ Defensive check
+      if (Array.isArray(data)) {
+        setVolunteers(data);
+      } else {
+        console.error("Unexpected response format:", data);
+        setVolunteers([]); // fallback to empty array
+      }
     } catch (error) {
       console.error("Error fetching volunteers:", error);
+      setVolunteers([]);
     }
-  };
+  };  
 
-  // Handle Adding a New Skill
   const handleAddSkill = async (e) => {
     e.preventDefault();
     if (!newSkill.trim()) {
       setMessage("Skill name is required");
       return;
     }
-  
+
     try {
       const response = await fetch("http://localhost:3360/skills", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ skill_name: newSkill }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         setMessage("Skill added successfully!");
-        setNewSkill("");  // Clear input
-        fetchSkills();  // Refresh skills list
-        setShowSkillModal(false); // Close modal
+        setNewSkill("");
+        fetchSkills();
+        setShowSkillModal(false);
       } else {
         setMessage(data.message || "Failed to add skill.");
       }
@@ -98,7 +105,7 @@ const MatchingAdd = () => {
       console.error("Error adding skill:", error);
       setMessage("Server error while adding skill.");
     }
-  };  
+  };
 
   const handleDeleteSkill = async (e) => {
     e.preventDefault();
@@ -125,7 +132,6 @@ const MatchingAdd = () => {
     }
   };
 
-  // Handle Adding an Event
   const handleSubmitEvent = async (e) => {
     e.preventDefault();
     if (!eventName || !eventDate || !location || !description || !urgency || requiredSkills.length === 0) {
@@ -136,19 +142,19 @@ const MatchingAdd = () => {
       const response = await fetch("http://localhost:3360/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          event_name: eventName, 
-          description, 
-          location, 
-          urgency, 
-          event_date: eventDate, 
-          skills: requiredSkills 
+        body: JSON.stringify({
+          event_name: eventName,
+          description,
+          location,
+          urgency,
+          event_date: eventDate,
+          skills: requiredSkills,
         }),
       });
-  
+
       if (response.ok) {
         if (window.confirm(`Successfully added event: "${eventName}". Click OK to return to homepage.`)) {
-          navigate("/"); // Redirect to homepage after confirmation
+          navigate("/");
         }
       } else {
         setMessage("Failed to add event.");
@@ -157,13 +163,12 @@ const MatchingAdd = () => {
       console.error("Error adding event:", error);
       setMessage("Server error while adding event.");
     }
-  };  
+  };
 
   const removeSkill = (skillId) => {
     setRequiredSkills((prevSkills) => prevSkills.filter((id) => id !== skillId));
-  };  
-  
-  // Handle Volunteer Match Submission
+  };
+
   const handleSubmitMatch = async (event) => {
     event.preventDefault();
     if (!selectedVolunteers.length || !selectedEvent) {
@@ -174,7 +179,10 @@ const MatchingAdd = () => {
       const response = await fetch("http://localhost:3360/match-volunteer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ volunteers: selectedVolunteers, event_id: selectedEvent }),
+        body: JSON.stringify({
+          volunteers: selectedVolunteers,
+          event_id: selectedEvent,
+        }),
       });
 
       if (response.ok) {
@@ -189,7 +197,6 @@ const MatchingAdd = () => {
       setMessage("Server error while matching volunteer.");
     }
   };
-
 
   return (
     <div className="page-container">
@@ -213,9 +220,9 @@ const MatchingAdd = () => {
               <option value="low">Low</option>
             </select>
 
-            {/* Skill Selection */}
-            <select onChange={(e) => {
-                const skillId = Number(e.target.value);  // Convert to number
+            <select
+              onChange={(e) => {
+                const skillId = Number(e.target.value);
                 if (skillId && !requiredSkills.includes(skillId)) {
                   setRequiredSkills((prevSkills) => [...prevSkills, skillId]);
                 }
@@ -228,10 +235,10 @@ const MatchingAdd = () => {
                 </option>
               ))}
             </select>
-            {/* Selected Skills Display */}
+
             <div className="selected-skills">
               {requiredSkills.map((skillId) => {
-                const skill = skills.find((s) => Number(s.skill_id) === Number(skillId)); // Ensure correct match
+                const skill = skills.find((s) => Number(s.skill_id) === Number(skillId));
                 return skill ? (
                   <div key={skillId} className="skill-bubble" onClick={() => removeSkill(skillId)}>
                     {skill.skill_name} ✖
@@ -240,7 +247,6 @@ const MatchingAdd = () => {
               })}
             </div>
 
-            {/* Add Skill Button */}
             <button type="button" onClick={() => setShowSkillModal(true)}>
               Can't find skill? Add Skill
             </button>
@@ -253,28 +259,36 @@ const MatchingAdd = () => {
         <div className="form-box">
           <h2>Volunteer Match Form</h2>
           <form onSubmit={handleSubmitMatch}>
-            <select onChange={(e) => setSelectedVolunteers([e.target.value])}>
-              <option value="">Select a Volunteer</option>
+          <select
+             value={selectedVolunteers[0] || ""}
+             onChange={(e) => setSelectedVolunteers([parseInt(e.target.value)])}
+            >
+            <option value="">Select a Volunteer</option>
               {volunteers.map((volunteer) => (
-                <option key={volunteer.id} value={volunteer.name}>
-                  {volunteer.name}
-                </option>
-              ))}
-            </select>
-            <select value={selectedEvent} onChange={(e) => setSelectedEvent(e.target.value)}>
-              <option value="">Select an Event</option>
+            <option key={volunteer.user_id} value={volunteer.user_id}>
+              {volunteer.full_name} {/* Now displaying full name */}
+            </option>
+            ))}
+          </select>
+
+
+          <select
+            value={selectedEvent}
+             onChange={(e) => setSelectedEvent(parseInt(e.target.value))}
+            >
+            <option value="">Select an Event</option>
               {events.map((event) => (
-                <option key={event.event_id} value={event.event_id}>
-                  {event.event_name}
-                </option>
-              ))}
-            </select>
+              <option key={event.event_id} value={event.event_id}>
+              {event.event_name} {/* Event name displayed properly */}
+            </option>
+            ))}
+          </select>
+
             <button type="submit">Match Volunteer</button>
           </form>
         </div>
       </div>
 
-      {/* Modal for Adding Skill */}
       {showSkillModal && (
         <div className="modal-overlay">
           <div className="modal">
@@ -289,23 +303,22 @@ const MatchingAdd = () => {
       )}
 
       {message && <p className="success-message">{message}</p>}
-      
+
       <div className="delete-skill-box">
-          <h2>Delete Skill</h2>
-          <form onSubmit={handleDeleteSkill}>
-            <select value={selectedSkillToDelete} onChange={(e) => setSelectedSkillToDelete(e.target.value)}>
-              <option value="">Select a Skill to Delete</option>
-              {skills.map((skill) => (
-                <option key={skill.skill_id} value={skill.skill_id}>
-                  {skill.skill_name}
-                </option>
-              ))}
-            </select>
-            <button type="submit" className="delete-btn"></button>
-          </form>
-        </div>
+        <h2>Delete Skill</h2>
+        <form onSubmit={handleDeleteSkill}>
+          <select value={selectedSkillToDelete} onChange={(e) => setSelectedSkillToDelete(e.target.value)}>
+            <option value="">Select a Skill to Delete</option>
+            {skills.map((skill) => (
+              <option key={skill.skill_id} value={skill.skill_id}>
+                {skill.skill_name}
+              </option>
+            ))}
+          </select>
+          <button type="submit" className="delete-btn"></button>
+        </form>
+      </div>
     </div>
-    
   );
 };
 
