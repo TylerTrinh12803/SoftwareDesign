@@ -19,7 +19,7 @@
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    
+
     position: absolute;
     top: 50%;
     left: 60%; /* Shift it slightly to the right */
@@ -33,7 +33,7 @@
     font-size: 20px;
     font-weight: bold;
     text-align: center;
-    
+
 }
 
 /* Two-Column Layout */
@@ -105,63 +105,87 @@
     color: #888;
 }
 
-/* Profile Management Form */
-.profile-management-form {
-    width: 80%;
-    max-width: 800px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    margin: 10px auto;
-}
-
-/* Availability Input & Tags */
-.profile-management-form .availability-input {
-    display: flex;
-    gap: 10px;
-}
-/* Availability Tags (Bubbles) */
-.profile-management-form .availability-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-/* Individual Availability Bubble */
-.profile-management-form .availability-tag {
-    background-color: #007bff; /* Blue background */
-    color: white;
-    padding: 6px 15px;
-    min-width: 140px; /* Make bubbles longer */
-    max-width: 200px; /* Ensure they aren't too wide */
-    border-radius: 20px; /* Rounded shape */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 14px;
+/* Availability (Horizontal Checkbox Selection) */
+.profile-management-form .form-group > label {
+    display: block; /* Ensure label is above the checkboxes */
     font-weight: bold;
-    white-space: nowrap; /* Ensure text stays in one line */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    transition: background 0.3s ease-in-out;
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 14px;
 }
 
-/* Remove Button inside Bubble */
-.profile-management-form .availability-tag button {
-    background: none;
-    border: none;
-    margin-left: 10px;
+.profile-management-form .availability-checkboxes {
+    display: flex;
+    flex-wrap: wrap; /* Allow checkboxes to wrap to the next line on smaller screens */
+    gap: 10px; /* Add spacing between each checkbox group */
+    margin-top: 5px; /* Add some space above the checkboxes */
+}
+
+.profile-management-form .availability-checkboxes div {
+    display: flex;
+    align-items: center; /* Align checkbox and label vertically */
+}
+
+.profile-management-form .availability-checkboxes input[type="checkbox"] {
+    margin-right: 5px; /* Add spacing between checkbox and label */
+    appearance: none; /* Remove default checkbox styling */
+    background-color: #eee;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
-    font-size: 14px;
-    color: white;
-    font-weight: bold;
-    transition: color 0.2s ease-in-out;
+    display: inline-block;
+    position: relative;
+    outline: none;
 }
 
-/* Hover effect for the Remove Button */
-.profile-management-form .availability-tag button:hover {
-    color: #ffdddd; /* Light red when hovered */
+.profile-management-form .availability-checkboxes input[type="checkbox"]:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.profile-management-form .availability-checkboxes input[type="checkbox"]:checked::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.profile-management-form .availability-checkboxes label {
+    font-weight: normal; /* Make labels for checkboxes normal weight */
+    margin-bottom: 0; /* Remove default bottom margin for labels in this context */
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.profile-management-form .form-group > .error {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+/* Style for the Save Profile button */
+.profile-management-form button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    width: auto; /* Adjust width to content */
+    display: block; /* Make it a block-level element */
+    margin: 20px auto 0; /* Center horizontally and add top margin */
+}
+
+.profile-management-form button[type="submit"]:hover {
+    background-color: #0056b3;
 }

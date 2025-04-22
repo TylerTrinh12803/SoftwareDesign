@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// Client-side (React)
+import React, { useState, useEffect, useCallback } from "react";
 import "../style/Profile.css";
 
 const Profile = () => {
@@ -11,15 +12,18 @@ const Profile = () => {
         zipCode: '',
         skills: [],
         preferences: '',
-        availability: []
+        availability: [], // Now stores selected days of the week
+        userID: localStorage.getItem('userId') || '' // Get userId from localStorage
     });
 
-    const today = new Date().toISOString().split("T")[0];
+    const [isEditing, setIsEditing] = useState(true);
+    const [submittedData, setSubmittedData] = useState(null);
+    const [formErrors, setFormErrors] = useState({});
+    const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const states = ["AL", "AK", "AZ", "CA", "FL", "NY", "TX", "WA"];
-    
     const volunteerSkills = [
-        "Event Planning", "Community Outreach", "Fundraising", 
-        "Public Speaking", "Teaching", "Disaster Relief", "Social Media Marketing", 
+        "Event Planning", "Community Outreach", "Fundraising",
+        "Public Speaking", "Teaching", "Disaster Relief", "Social Media Marketing",
         "Medical Assistance", "Animal Care", "Food Distribution"
     ];
 
@@ -31,7 +35,7 @@ const Profile = () => {
     const handleSkillChange = (e) => {
         const selectedSkill = e.target.value;
         if (selectedSkill && !formData.skills?.includes(selectedSkill)) {
-            setFormData({ ...formData, skills: [...formData.skills, selectedSkill] });
+            setFormData({ ...formData, skills: [...(formData.skills || []), selectedSkill] });
         }
     };
 
@@ -42,32 +46,61 @@ const Profile = () => {
         });
     };
 
-    const [selectedDate, setSelectedDate] = useState('');
-    const [isEditing, setIsEditing] = useState(true); // Add editing state
-    const [submittedData, setSubmittedData] = useState(null); // Store submitted data
-    const [formErrors, setFormErrors] = useState({}); // Add state for form errors
-
-    const handleDateChange = (e) => {
-        const newDate = e.target.value;
-        if (newDate && !formData.availability.includes(newDate)) {
-            setFormData({ ...formData, availability: [...formData.availability, newDate] });
-            setSelectedDate(''); // Reset input after adding
+    const handleAvailabilityChange = (e) => {
+        const { value, checked } = e.target;
+        if (checked) {
+            setFormData({
+                ...formData,
+                availability: [...(formData.availability || []), value],
+            });
+        } else {
+            setFormData({
+                ...formData,
+                availability: formData.availability.filter((day) => day !== value),
+            });
         }
     };
 
-    const handleDeleteDate = (dateToRemove) => {
-        setFormData({
-            ...formData,
-            availability: formData.availability.filter(date => date !== dateToRemove)
-        });
-    };
+    // useCallback to memoize the fetchProfile function for efficiency
+    const fetchProfile = useCallback(async () => {
+        const userId = localStorage.getItem('userId');
+        console.log("Fetching profile with userId:", userId);
+        if (userId) {
+            try {
+                const response = await fetch(`http://localhost:3360/api/profile?userID=${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data) {
+                        setSubmittedData(data);
+                        setFormData({
+                            fullName: data.full_name || '',
+                            address1: data.address_1 || '',
+                            address2: data.address_2 || '',
+                            city: data.city || '',
+                            state: data.state_code || '',
+                            zipCode: data.zip_code || '',
+                            skills: data.skills || [],
+                            preferences: data.preferences || '',
+                            availability: data.availability || [],
+                            userID: localStorage.getItem('userId') || ''
+                        });
+                        setIsEditing(false);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+            }
+        } else {
+            console.log('User ID not found. Please log in.');
+            // Optionally redirect to the login page
+        }
+    }, []);
 
-    const handleSubmit = async (e) => { //make async
-        e.preventDefault(); //prevent default
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-        const errors = {}; // Initialize errors object
+        const errors = {};
 
-        // Validation logic
         if (!formData.fullName.trim()) {
             errors.fullName = "Full Name is required";
         }
@@ -91,28 +124,36 @@ const Profile = () => {
         }
 
         if (formData.availability.length === 0) {
-            errors.availability = "At least one availability is required";
+            errors.availability = "At least one day of availability is required";
         }
 
-        setFormErrors(errors); // Set errors state
+        if (!formData.userID) {
+            errors.userID = "User ID is missing. Please log in again.";
+        }
 
-        if (Object.keys(errors).length === 0) { //only runs if no errors.
+        setFormErrors(errors);
+
+        if (Object.keys(errors).length === 0) {
+            const formDataToSend = { ...formData, userID: parseInt(formData.userID, 10) };
+            console.log("Sending formData:", formDataToSend);
+
             try {
                 const response = await fetch('http://localhost:3360/api/profile', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify(formDataToSend),
                 });
-                
+
                 if (response.ok) {
-                    const data = await response.json(); // Get response data
-                    if (data.errors) { // Check for validation errors from server
+                    const data = await response.json();
+                    if (data.errors) {
                         setFormErrors(data.errors);
                     } else {
-                        setSubmittedData(formData);
+                        setSubmittedData(formDataToSend); // Update submittedData with the updated form
                         setIsEditing(false);
+                        fetchProfile(); // <------------------ Call fetchProfile after successful update
                     }
                 } else {
                     console.error('Failed to submit profile');
@@ -120,42 +161,24 @@ const Profile = () => {
             } catch (error) {
                 console.error('Error submitting profile:', error);
             }
-        };
+        }
     };
 
-    const handleEditClick = () => {
-        setIsEditing(true); // Switch back to editable view
+    const handleEditClick = () => { // <------------------ Define handleEditClick here
+        setIsEditing(true);
     };
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const response = await fetch('http://localhost:3360/api/profile');
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data) {
-                        setSubmittedData(data);
-                        setFormData(data);
-                        setIsEditing(false);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching profile:', error);
-            }
-        };
-
-        fetchProfile(); // Fetch profile on component mount
-    },);
+        fetchProfile(); // Fetch profile data on initial component mount
+    }, [fetchProfile]); // Add fetchProfile to the dependency array
 
     return (
         <div className="profile-management-page">
             <div className="profile-management-form">
                 <h2>Profile Management Form</h2>
-                
-                {isEditing ? ( // Conditionally render form or submitted data
+
+                {isEditing ? (
                     <form onSubmit={handleSubmit}>
-                        {/* ... (form inputs) ... */}
-                        {/* full name and zip code */}
                         <div className="form-row">
                             <div className="form-group">
                                 <label htmlFor="fullName">Full Name</label>
@@ -169,7 +192,6 @@ const Profile = () => {
                             </div>
                         </div>
 
-                        {/* Address 1 & Address 2 */}
                         <div className="form-row">
                             <div className="form-group">
                                 <label htmlFor="address1">Address 1</label>
@@ -182,7 +204,6 @@ const Profile = () => {
                             </div>
                         </div>
 
-                        {/* City & State */}
                         <div className="form-row">
                             <div className="form-group">
                                 <label htmlFor="city">City</label>
@@ -195,10 +216,10 @@ const Profile = () => {
                                     <option value="">Select a state</option>
                                     {states.map(state => <option key={state} value={state}>{state}</option>)}
                                 </select>
+                                {formErrors.state && <p className="error">{formErrors.state}</p>}
                             </div>
                         </div>
 
-                        {/* Volunteer Skills Dropdown */}
                         <div className="form-group">
                             <label>Volunteer Skills</label>
                             <select className="wide-dropdown" onChange={handleSkillChange} value="">
@@ -208,7 +229,7 @@ const Profile = () => {
                                 ))}
                             </select>
                             <div className="skills-tags">
-                                {formData.skills.map((skill) => (
+                                {formData.skills?.map((skill) => (
                                     <div key={skill} className="skill-tag">
                                         {skill}
                                         <button type="button" onClick={() => handleDeleteSkill(skill)}>
@@ -219,58 +240,48 @@ const Profile = () => {
                             </div>
                         </div>
 
-                        {/* Preferences */}
                         <div className="form-group">
                             <label>Preferences</label>
                             <textarea name="preferences" value={formData.preferences} onChange={handleInputChange}></textarea>
                         </div>
-                        
-                        {/* Availability (Multi-Date Selection) */} 
+
+                        {/* Availability (Multiple Checkbox Selection) */}
                         <div className="form-group">
-                            <label>Availability</label> 
-                            <div className="availability-input">
-                                <input type="date" 
-                                    value={selectedDate} 
-                                    onChange={handleDateChange} 
-                                    min={today} />
-                            </div>
-                            <div className="availability-tags">
-                                {formData.availability.map((date) => (
-                                    <div key={date} className="availability-tag">
-                                        {date}
-                                        <button type="button" onClick={() => handleDeleteDate(date)}>
-                                            &times;
-                                        </button>
+                            <label>Availability</label>
+                            <div className="availability-checkboxes">
+                                {daysOfWeek.map(day => (
+                                    <div key={day}>
+                                        <input
+                                            type="checkbox"
+                                            id={`availability-${day.toLowerCase()}`}
+                                            name="availability"
+                                            value={day}
+                                            checked={formData.availability?.includes(day)}
+                                            onChange={handleAvailabilityChange}
+                                        />
+                                        <label htmlFor={`availability-${day.toLowerCase()}`}>{day}</label>
                                     </div>
                                 ))}
                             </div>
+                            {formErrors.availability && <p className="error">{formErrors.availability}</p>}
                         </div>
-
-                        {/* Display errors */}
-                        {formErrors.fullName && <p className="error">{formErrors.fullName}</p>}
-                        {formErrors.zipCode && <p className="error">{formErrors.zipCode}</p>}
-                        {formErrors.address1 && <p className="error">{formErrors.address1}</p>}
-                        {formErrors.city && <p className="error">{formErrors.city}</p>}
-                        {formErrors.state && <p className="error">{formErrors.state}</p>}
-                        {formErrors.availability && <p className="error">{formErrors.availability}</p>}
 
                         <button type="submit">Save Profile</button>
                     </form>
                 ) : (
                     <div>
                         <h3>Submitted Profile Information</h3>
-                        <p>Full Name: {submittedData.fullName}</p>
-                        <p>Address: {submittedData?.address1}, {submittedData?.address2}</p>
-                        <p>City: {submittedData.city}</p>
-                        <p>State: {submittedData.state}</p>
-                        <p>Zip Code: {submittedData.zipCode}</p>
+                        <p>Full Name: {submittedData?.full_name}</p>
+                        <p>Address: {submittedData?.address_1}{submittedData?.address_2 ? `, ${submittedData.address_2}` : ''}</p>
+                        <p>City: {submittedData?.city}</p>
+                        <p>State: {submittedData?.state_code}</p>
+                        <p>Zip Code: {submittedData?.zip_code}</p>
                         <p>Skills: {submittedData?.skills?.join(', ')}</p>
-                        <p>Preferences: {submittedData.preferences}</p>
+                        <p>Preferences: {submittedData?.preferences}</p>
                         <p>Availability: {submittedData?.availability?.join(', ')}</p>
-                        <button type="button" onClick={handleEditClick}>
+                        <button type="button" onClick={handleEditClick}> {/* Call handleEditClick */}
                             Edit Profile
                         </button>
-                        {formErrors.state && <p className="error">{formErrors.state}</p>}
                     </div>
                 )}
             </div>

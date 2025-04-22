@@ -8,5 +8,9 @@ const db = await mysql.createConnection({
   database: "volunteer",
 });
 
+<<<<<<< Updated upstream
 export default db;
 */
+=======
+export default db;
+>>>>>>> Stashed changes

@@ -1,148 +1,190 @@
-// profileRoutes.js
+// Server-side (profileRoutes.js)
 import express from "express";
+import db from "../config/db.js"; // Import the database connection
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const router = express.Router();
-
-let savedProfile = null; // In-memory storage for the profile
-
-// Function to validate a date string in YYYY-MM-DD format
-function isValidDate(date) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(date);
-}
 
 // Helper function to validate string fields
 function validateString(value, fieldName) {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    return `${fieldName} is required and must be a string.`;
-  }
-  return null; // No error
+    if (typeof value !== "string" || value.trim().length === 0) {
+        return `${fieldName} is required and must be a string.`;
+    }
+    return null; // No error
 }
 
 // Function to validate the entire profile object
 function validateProfile(profile) {
-  const {
-    fullName,
-    address1,
-    address2,
-    city,
-    state,
-    zipCode,
-    skills,
-    preferences,
-    availability,
-  } = profile;
-  const errors = {};
+    const {
+        fullName,
+        address1,
+        address2,
+        city,
+        state,
+        zipCode,
+        skills,
+        preferences,
+        availability, // Now an array of days
+        userID,
+    } = profile;
+    const errors = {};
 
-  // Full Name validation
-  if (typeof fullName !== "string" || fullName.trim().length === 0) {
-    errors.fullName = "Full Name is required and must be a string.";
-  } else if (fullName.trim().length > 50) {
-    errors.fullName = "Full Name must be 50 characters or less.";
-  }
-
-  // Address 1 validation
-  const address1Error = validateString(address1, "Address 1");
-  if (address1Error) {
-    errors.address1 = address1Error;
-  }
-
-  // Address 2 validation (optional)
-  if (address2) {
-    const address2Error = validateString(address2, "Address 2");
-    if (address2Error) {
-      errors.address2 = address2Error;
+    if (!userID || typeof userID !== 'number') {
+        errors.userID = "userID is required and must be a number.";
     }
-  }
 
-  // City validation
-  const cityError = validateString(city, "City");
-  if (cityError) {
-    errors.city = cityError;
-  }
+    // Full Name validation
+    if (typeof fullName !== "string" || fullName.trim().length === 0) {
+        errors.fullName = "Full Name is required and must be a string.";
+    } else if (fullName.trim().length > 50) {
+        errors.fullName = "Full Name must be 50 characters or less.";
+    }
 
-  // State validation
-  const validStates = [
-    "AL",
-    "AK",
-    "AZ",
-    "CA",
-    "FL",
-    "NY",
-    "TX",
-    "WA",
-  ]; // Add more states as needed
-  if (typeof state !== "string" || !validStates.includes(state)) {
-    errors.state = "Invalid state selection.";
-  }
+    // Address 1 validation
+    const address1Error = validateString(address1, "Address 1");
+    if (address1Error) {
+        errors.address1 = address1Error;
+    }
 
-  // Zip Code validation
-  if (typeof zipCode !== "string" || zipCode.trim().length === 0) {
-    errors.zipCode = "Zip Code is required and must be a string.";
-  } else if (!/^\d{5}(?:[- ]?\d{4})?$/.test(zipCode)) {
-    errors.zipCode = "Invalid Zip Code format.";
-  }
+    // Address 2 validation (optional)
+    if (address2) {
+        const address2Error = validateString(address2, "Address 2");
+        if (address2Error) {
+            errors.address2 = address2Error;
+        }
+    }
 
-  // Skills validation
-  if (!Array.isArray(skills)) {
-    errors.skills = "Skills must be an array.";
-  } else {
-    skills.forEach((skill, index) => {
-      if (typeof skill !== "string") {
-        errors[`skills[${index}]`] = "Each skill must be a string.";
-      }
-    });
-  }
+    // City validation
+    const cityError = validateString(city, "City");
+    if (cityError) {
+        errors.city = cityError;
+    }
 
-  // Preferences validation (optional)
-  if (preferences && typeof preferences !== "string") {
-    errors.preferences = "Preferences must be a string.";
-  }
+    // State validation
+    const validStates = [
+        "AL", "AK", "AZ", "CA", "FL", "NY", "TX", "WA"
+    ]; // Add more states as needed
+    if (typeof state !== "string" || !validStates.includes(state)) {
+        errors.state = "Invalid state selection.";
+    }
 
-  // Availability validation
-  if (!Array.isArray(availability) || availability.length === 0) {
-    errors.availability = "At least one availability date is required.";
-  } else {
-    availability.forEach((date, index) => {
-      if (typeof date !== "string" || !isValidDate(date)) {
-        errors[`availability[${index}]`] =
-          "Invalid date format. Please use YYYY-MM-DD.";
-      }
-    });
-  }
+    // Zip Code validation
+    if (typeof zipCode !== "string" || zipCode.trim().length === 0) {
+        errors.zipCode = "Zip Code is required and must be a string.";
+    } else if (!/^\d{5}(?:[- ]?\d{4})?$/.test(zipCode)) {
+        errors.zipCode = "Invalid Zip Code format.";
+    }
 
-  if (Object.keys(errors).length > 0) {
-    return errors; // Return errors immediately
-  }
+    // Skills validation
+    if (!Array.isArray(skills)) {
+        errors.skills = "Skills must be an array.";
+    } else {
+        skills.forEach((skill, index) => {
+            if (typeof skill !== "string") {
+                errors[`skills[${index}]`] = "Each skill must be a string.";
+            }
+        });
+    }
 
-  // No errors
-  return null;
-}
+    // Preferences validation (optional)
+    if (preferences && typeof preferences !== "string") {
+        errors.preferences = "Preferences must be a string.";
+    }
 
-// Function to save the profile
-function saveProfile(profile) {
-    savedProfile = profile;
+    // Availability validation (now checking for days of the week)
+    const validDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    if (!Array.isArray(availability) || availability.length === 0) {
+        errors.availability = "At least one day of availability is required.";
+    } else {
+        availability.forEach((day, index) => {
+            if (typeof day !== "string" || !validDays.includes(day)) {
+                errors[`availability[${index}]`] = "Invalid day of the week.";
+            }
+        });
+    }
+
+    if (Object.keys(errors).length > 0) {
+        return errors; // Return errors immediately
+    }
+
+    // No errors
+    return null;
 }
 
 // POST /profile: Save or update the profile data
-router.post("/", (req, res) => {
-  const profile = req.body;
-  const errors = validateProfile(profile);
+router.post("/", async (req, res) => {
+    const profile = req.body;
+    const errors = validateProfile(profile); // Call validateProfile here
 
-  if (errors) {
-    return res.status(400).json({ errors }); // Send validation errors
-  }
+    if (errors) {
+        return res.status(400).json({ errors }); // Send validation errors
+    }
 
-  saveProfile(profile);
-  res.status(200).json({ message: "Profile saved successfully" });
+    const {
+        fullName,
+        address1,
+        address2,
+        city,
+        state,
+        zipCode,
+        skills,
+        preferences,
+        availability, // Array of days
+        userID,
+    } = profile;
+
+    try {
+        await db.execute(
+            `REPLACE INTO user_profile (user_id, full_name, address_1, address_2, city, state_code, zip_code, skills, preferences, availability) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                userID,
+                fullName,
+                address1,
+                address2,
+                city,
+                state,
+                zipCode,
+                skills,             // Store the array directly
+                preferences,
+                availability,     // Store the array directly
+            ]
+        );
+        res.status(200).json({ message: "Profile saved successfully" });
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ message: "Failed to save profile" });
+    }
 });
 
 // GET /profile: Retrieve the profile data
-router.get("/", (req, res) => {
-  if (savedProfile) {
-    res.json(savedProfile);
-  } else {
-    res.status(404).json({ message: "Profile not found" });
-  }
+router.get("/", async (req, res) => {
+    console.log("Attempting to retrieve profile data");
+    const userID = req.query.userID;
+    const parsedUserID = parseInt(userID, 10);
+
+    if (!userID || isNaN(parsedUserID)) {
+        return res.status(400).json({ message: "userID is required and must be a number." });
+    }
+
+    try {
+        const [rows] = await db.execute(
+            `SELECT full_name, address_1, address_2, city, state_code, zip_code, skills, preferences, availability FROM user_profile WHERE user_id = ?`,
+            [parsedUserID]
+        );
+
+        if (rows.length > 0) {
+            const profile = rows[0];
+            console.log("Profile data retrieved:", profile);
+            res.json(profile); // Send the profile object directly
+        } else {
+            res.status(404).json({ message: "Profile not found" });
+        }
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ message: "Failed to retrieve profile" });
+    }
 });
 
 export default router;
-export { savedProfile, saveProfile }; // Export saveProfile
