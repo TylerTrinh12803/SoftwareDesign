@@ -1,6 +1,6 @@
 import mysql from "mysql2/promise";
 
-const db = await mysql.createConnection({
+const pool = await mysql.createConnection({
   host: "software-design.cdms64i00kbh.us-east-2.rds.amazonaws.com",
   port: 3306, // MySQL server port
   user: "admin",
@@ -8,4 +8,4 @@ const db = await mysql.createConnection({
   database: "volunteer",
 });
 
-export default db;
+export default pool;

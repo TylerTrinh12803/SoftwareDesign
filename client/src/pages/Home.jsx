@@ -8,30 +8,19 @@ const Home = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [notifications, setNotifications] = useState(0);
-    const [events, setEvents] = useState([
-        {
-            event_id: 1,
-            event_name: "Beach Cleanup",
-            event_date: "2025-04-15",
-            location: "Santa Monica",
-            description: "Join us for a beach cleanup event and help keep our beaches clean!"
-        },
-        {
-            event_id: 2,
-            event_name: "Tree Planting",
-            event_date: "2025-05-01",
-            location: "Central Park",
-            description: "Help us plant trees and green our city for a sustainable future."
-        },
-        {
-            event_id: 3,
-            event_name: "Food Drive",
-            event_date: "2025-05-10",
-            location: "Downtown",
-            description: "Support local families by donating food during our annual food drive."
-        }
-    ]);
+    const [events, setEvents] = useState([]);
+    const [joinedEvents, setJoinedEvents] = useState([]);
+    const [joinSuccess, setJoinSuccess] = useState(null);
 
+    useEffect(() => {
+        const msg = localStorage.getItem("joinMessage");
+        if (msg) {
+            alert(msg);
+            localStorage.removeItem("joinMessage");
+        }
+    }, []);
+    
+    
     // Fetch events from the backend
     useEffect(() => {
         fetchEvents();
@@ -58,11 +47,29 @@ const Home = () => {
         const newNotifications = localStorage.getItem("notifications") || 0;
 
         if (token && email) {
-            setUser({ email, role });
+            const userId = localStorage.getItem("userId");
+            setUser({ email, role, user_id: userId });
             setNotifications(parseInt(newNotifications, 10));
         }
     }, []);
-
+    useEffect(() => {
+        const fetchJoinedEvents = async () => {
+            const userId = localStorage.getItem("userId");
+            if (!userId) return;
+    
+            try {
+                const response = await fetch(`http://localhost:3360/history/${userId}`);
+                const data = await response.json();
+                const eventIds = data.map(entry => entry.event_id);
+                setJoinedEvents(eventIds);
+            } catch (error) {
+                console.error("Error fetching joined events:", error);
+            }
+        };
+    
+        fetchJoinedEvents();
+    }, []);
+    
     // Logout function
     const handleLogout = () => {
         localStorage.clear();
@@ -75,7 +82,27 @@ const Home = () => {
         localStorage.setItem("notifications", "0");
         setNotifications(0);
     };
-
+    const handleJoinEvent = async (eventId) => {
+        const userId = user?.user_id;
+        if (!userId) return alert("You must be logged in.");
+    
+        const joinedEvent = events.find(e => e.event_id === eventId);
+        const eventName = joinedEvent?.event_name || "event";
+    
+        // Save message now
+        localStorage.setItem("joinMessage", `Successfully joined: ${eventName}`);
+    
+        // Send request (but don't wait for it to finish)
+        fetch("http://localhost:3360/history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: userId, event_id: eventId }),
+        });
+    
+        // Immediately reload the page
+        window.location.href = window.location.href;
+    };
+    
     // Admin-Only: Delete Event
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this event?")) {
@@ -91,7 +118,29 @@ const Home = () => {
             }
         }
     };
-
+    const handleUnjoinEvent = async (eventId) => {
+        const userId = user?.user_id;
+        if (!userId) return;
+    
+        const confirm = window.confirm("Are you sure you want to unjoin this event?");
+        if (!confirm) return;
+    
+        try {
+            const response = await fetch(`http://localhost:3360/history/${userId}/${eventId}`, {
+                method: "DELETE"
+            });
+    
+            if (response.ok) {
+                setJoinedEvents(prev => prev.filter(id => id !== eventId));
+            } else {
+                alert("Failed to unjoin.");
+            }
+        } catch (error) {
+            console.error("Unjoin error:", error);
+        }
+    };
+    
+    
     return (
         <div>
             {/* Navbar */}
@@ -136,6 +185,11 @@ const Home = () => {
                 <div className="hero-img">
                     <img src={volunteerImage} alt="Volunteer" />
                 </div>
+                {joinSuccess && (
+                <div className="join-alert">
+                    ✅ {joinSuccess}
+                </div>
+            )}
             </section>
 
             {/* Events Section */}
@@ -154,28 +208,40 @@ const Home = () => {
                         <p>No events available.</p>
                     ) : (
                         events.map(event => {
-                            // Convert event_date to a readable format (DD-MM-YYYY)
                             const formattedDate = new Date(event.event_date).toLocaleDateString("en-GB", {
                                 day: "2-digit",
                                 month: "2-digit",
                                 year: "numeric",
                             });
-
                             return (
-                                <div key={event.event_id} className="event">
-                                    <h3 className="event-title">{event.event_name}</h3>
-                                    <p className="event-date">{formattedDate} | {event.location}</p>
-                                    <p className="event-description">{event.description}</p>
+                                <div className="event">
+                                <h3 className="event-title">{event.event_name}</h3>
+                                <p className="event-date">{formattedDate} | {event.location}</p>
+                                <p className="event-description">{event.description}</p>
 
-                                    {/* Admin-Only Edit & Delete Buttons */}
-                                    {user?.role === "admin" && (
-                                        <div className="admin-controls">
-                                            <button className="edit-btn" onClick={() => navigate(`/update/${event.event_id}`)}></button>
-                                            <button className="delete-btn" onClick={() => handleDelete(event.event_id)}></button>
+                                {/* 👇 Join / Joined / Unjoin go here */}
+                                {user && (
+                                    joinedEvents.includes(Number(event.event_id)) ? (
+                                        <div className="join-button-wrapper">
+                                            <button className="hover-unjoin" onClick={() => handleUnjoinEvent(event.event_id)}></button>
+
                                         </div>
-                                    )}
-                                </div>
-                            );
+                                    ) : (
+                                        <div className="join-button-wrapper">
+                                            <button className="join-btn" onClick={() => handleJoinEvent(event.event_id)}>Join Event</button>
+                                        </div>
+                                    )
+                                )}
+
+                                {/* 👇 Admin controls stay below join buttons */}
+                                {user?.role === "admin" && (
+                                    <div className="admin-controls">
+                                        <button className="edit-btn" onClick={() => navigate(`/update/${event.event_id}`)}></button>
+                                        <button className="delete-btn" onClick={() => handleDelete(event.event_id)}></button>
+                                    </div>
+                                )}
+                            </div>
+                            );                            
                         })
                     )}
                 </div>

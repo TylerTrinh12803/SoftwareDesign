@@ -463,4 +463,70 @@ body {
 /* Hover Effect */
 .add-btn:hover {
     transform: scale(1.1);
+}.join-btn,
+.unjoin-btn {
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+    width: auto;              /* ✅ wrap to text */
+    min-width: unset;         /* ✅ remove default min-width if present */
+    text-align: center;
+    display: inline-block;    /* ✅ prevent stretch */
+}
+
+.join-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.join-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.unjoin-btn {
+    background-color: #dc3545;
+    color: white;
+}
+.join-button-wrapper {
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap; /* ✅ just in case on smaller screens */
+}
+
+.hover-unjoin {
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    width: auto;              /* ✅ shrink to fit text */
+    min-width: unset;
+    text-align: center;
+    display: inline-block;    /* ✅ prevent full width */
+    position: relative;
+}
+
+.hover-unjoin::before {
+    content: "Joined";
+}
+
+.hover-unjoin:hover::before {
+    content: "Unjoin";
+}
+
+.hover-unjoin:hover {
+    background-color: #dc3545; /* red */
 }
