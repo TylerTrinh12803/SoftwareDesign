@@ -50,7 +50,7 @@ const Update = () => {
   
       // Ensure requiredSkills is stored as an array of skill IDs
       if (Array.isArray(data.required_skills)) {
-        setRequiredSkills(data.required_skills.map(skill => skill.skill_id)); 
+        setRequiredSkills(data.required_skills.map(skill => skill.skill_id));
       } else {
         setRequiredSkills([]);
       }

@@ -13,6 +13,7 @@ const MatchingAdd = () => {
   const [urgency, setUrgency] = useState("");
   const [requiredSkills, setRequiredSkills] = useState([]);
   const [selectedSkillToDelete, setSelectedSkillToDelete] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Skill Management State
   const [newSkill, setNewSkill] = useState("");
@@ -134,10 +135,15 @@ const MatchingAdd = () => {
 
   const handleSubmitEvent = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+  
     if (!eventName || !eventDate || !location || !description || !urgency || requiredSkills.length === 0) {
       setMessage("All event fields are required.");
       return;
     }
+  
+    setIsSubmitting(true); // ⛔ prevent multiple submissions
+  
     try {
       const response = await fetch("http://localhost:3360/events", {
         method: "POST",
@@ -151,19 +157,23 @@ const MatchingAdd = () => {
           skills: requiredSkills,
         }),
       });
-
+  
       if (response.ok) {
+        setIsSubmitting(false); // ✅ Reset after submission
         if (window.confirm(`Successfully added event: "${eventName}". Click OK to return to homepage.`)) {
           navigate("/");
         }
       } else {
         setMessage("Failed to add event.");
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error("Error adding event:", error);
       setMessage("Server error while adding event.");
+      setIsSubmitting(false);
     }
   };
+  
 
   const removeSkill = (skillId) => {
     setRequiredSkills((prevSkills) => prevSkills.filter((id) => id !== skillId));
@@ -237,21 +247,25 @@ const MatchingAdd = () => {
             </select>
 
             <div className="selected-skills">
-              {requiredSkills.map((skillId) => {
-                const skill = skills.find((s) => Number(s.skill_id) === Number(skillId));
-                return skill ? (
-                  <div key={skillId} className="skill-bubble" onClick={() => removeSkill(skillId)}>
-                    {skill.skill_name} ✖
-                  </div>
-                ) : null;
-              })}
+            {requiredSkills.map((skillId) => {
+              const skill = skills.find((s) => Number(s.skill_id) === Number(skillId));
+              return skill ? (
+                <div key={`skill-${skill.skill_id}`} className="skill-bubble" onClick={() => removeSkill(skill.skill_id)}>
+                  {skill.skill_name} ✖
+                </div>
+              ) : null;
+            })}
+
             </div>
 
             <button type="button" onClick={() => setShowSkillModal(true)}>
               Can't find skill? Add Skill
             </button>
 
-            <button type="submit">Add Event</button>
+            <button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Submitting..." : "Add Event"}
+            </button>
+
           </form>
         </div>
 

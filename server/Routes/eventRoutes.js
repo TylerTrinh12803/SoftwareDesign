@@ -81,8 +81,12 @@ router.post("/events", async (req, res) => {
 
     // Assign skills to event
     for (const skill_id of skills) {
-      await db.query("INSERT INTO event_skills (event_id, skill_id) VALUES (?, ?)", [event_id, skill_id]);
+      await db.query(
+        "INSERT INTO event_skills (event_id, skill_id) VALUES (?, ?)",
+        [event_id, skill_id]
+      );
     }
+    
     res.status(201).json({ message: "Event created successfully", event_id });
   } catch (error) {
     console.error("Error creating event:", error);
@@ -130,28 +134,37 @@ router.delete("/events/:id", async (req, res) => {
   }
 });
 
-
 router.get("/events/:id", async (req, res) => {
   const { id } = req.params;
+
   if (isNaN(Number(id))) {
-    return res.status(500).json({ message: "Database error" });
+    return res.status(500).json({ message: "Invalid event ID." });
   }
+
   try {
-    const [events] = await db.query(
-      `SELECT e.event_id, e.event_name, e.description, e.location, e.urgency, 
-        DATE_FORMAT(e.event_date, '%Y-%m-%d') AS event_date,
-        JSON_ARRAYAGG(JSON_OBJECT('skill_id', s.skill_id, 'skill_name', s.skill_name)) AS required_skills
-      FROM events e
-      LEFT JOIN event_skills es ON e.event_id = es.event_id
-      LEFT JOIN skills s ON es.skill_id = s.skill_id
-      WHERE e.event_id = ?
-      GROUP BY e.event_id`,
+    // Fetch base event details
+    const [[event]] = await db.query(
+      `SELECT event_id, event_name, description, location, urgency, 
+              DATE_FORMAT(event_date, '%Y-%m-%d') AS event_date
+       FROM events WHERE event_id = ?`,
       [id]
     );
-    if (events.length === 0) {
-      return res.status(404).json({ message: "Event not found" });
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found." });
     }
-    res.json(events[0]);
+
+    // Fetch associated skills
+    const [skills] = await db.query(
+      `SELECT s.skill_id, s.skill_name
+       FROM event_skills es
+       JOIN skills s ON es.skill_id = s.skill_id
+       WHERE es.event_id = ?`,
+      [id]
+    );
+
+    event.required_skills = skills;
+    res.json(event);
   } catch (error) {
     console.error("Error fetching event:", error);
     res.status(500).json({ message: "Database error" });
@@ -186,14 +199,19 @@ router.put("/events/:id", async (req, res) => {
     await db.query("DELETE FROM event_skills WHERE event_id = ?", [id]);
 
     if (skills.length > 0) {
-      for (const skill of skills) {
+      for (const skill_id of skills) {
+        if (!skill_id) {
+          console.warn("Skipping invalid skill_id:", skill_id);
+          continue;
+        }
+    
         await db.query(
-          "INSERT INTO event_skills (event_id, skill_id) VALUES (?, (SELECT skill_id FROM skills WHERE skill_name = ?))",
-          [id, skill]
+          "INSERT INTO event_skills (event_id, skill_id) VALUES (?, ?)",
+          [id, skill_id]
         );
       }
-    }
-
+    } 
+    
     res.json({ message: "Event updated successfully!" });
   } catch (error) {
     console.error("Error updating event:", error);
