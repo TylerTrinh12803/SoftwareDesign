@@ -7,6 +7,7 @@ import notificationRoutes from "./Routes/notificationRoutes.js";
 import profileRoutes from "./Routes/profileRoutes.js";
 import volunteersRoutes from "./Routes/volunteers.js"; 
 import matchingRoutes from "./Routes/matching.js"; // Ensure this is correct
+import reportRoutes from "./Routes/reportRoutes.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(notificationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use("/", volunteersRoutes);
 app.use("/", matchingRoutes);
+app.use("/", reportRoutes);
 
 
 // Start the server

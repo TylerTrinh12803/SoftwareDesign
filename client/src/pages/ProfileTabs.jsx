@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import History from "./History";
 import Profile from "./Profile";
-import Users from "./Users"; // Import Users.jsx
+import Users from "./Users";
+import Report from "./Report"; // ✅ Import Report component
 import "../style/ProfileTabs.css";
 
 function ProfileTabs() {
@@ -19,7 +20,6 @@ function ProfileTabs() {
 
   return (
     <div className={`profile-tabs-container ${activeTab === "users" ? "users-background" : ""}`}>
-      {/* Unified Content Wrapper */}
       <div className="content-wrapper">
         <div className="sidebar">
           <div className="sidebar-header">
@@ -42,25 +42,31 @@ function ProfileTabs() {
             >
               Volunteer History
             </div>
-
-            {/* Admin-Only Users Tab */}
             {isAdmin && (
-              <div
-                className={`menu-item ${activeTab === "users" ? "active" : ""}`}
-                onClick={() => setActiveTab("users")}
-              >
-                Manage Users
-              </div>
+              <>
+                <div
+                  className={`menu-item ${activeTab === "users" ? "active" : ""}`}
+                  onClick={() => setActiveTab("users")}
+                >
+                  Manage Users
+                </div>
+                <div
+                  className={`menu-item ${activeTab === "reports" ? "active" : ""}`}
+                  onClick={() => setActiveTab("reports")}
+                >
+                  Reports
+                </div>
+              </>
             )}
           </div>
         </div>
 
-        {/* Content Area Inside Same Box */}
         <div className="tab-content">
           <div className="content-box">
             {activeTab === "profile" && <Profile />}
             {activeTab === "history" && <History />}
             {activeTab === "users" && isAdmin && <Users />}
+            {activeTab === "reports" && isAdmin && <Report />} {/* ✅ Render Report */}
           </div>
         </div>
       </div>

@@ -1,0 +1,35 @@
+.sort-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .sort-controls label {
+    font-weight: bold;
+  }
+  .filter-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .report-page {
+    font-family: Arial, sans-serif;
+    background-image: url('../assets/addbf.jpg');
+    background-size: cover; /* Cover entire page */
+    background-position: center center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}    
+
+.report-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-left: 250px; /* Shifts it to the right */
+    max-width: 1000px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
