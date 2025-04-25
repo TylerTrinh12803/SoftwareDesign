@@ -8,23 +8,22 @@
     "start": "nodemon index.js"
   },
   "nyc": {
-    "all": true,
-    "include": [
-      "Routes/**/*.js"
-    ],
-    "exclude": [
-      "test/**/*.js"
-    ],
-    "reporter": [
-      "html",
-      "text-summary"
-    ],
-    "check-coverage": true,
-    "lines": 80,
-    "statements": 80,
-    "functions": 80,
-    "branches": 80
-  },
+  "include": [
+    "server/test/**/*.test.js"
+  ],
+  "exclude": [
+    "server/test/ignore/*.test.js"
+  ],
+  "reporter": [
+    "html",
+    "text-summary"
+  ],
+  "check-coverage": true,
+  "lines": 80,
+  "statements": 80,
+  "functions": 80,
+  "branches": 80
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

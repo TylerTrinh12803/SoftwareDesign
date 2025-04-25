@@ -40,7 +40,7 @@ router.post("/match-volunteer", async (req, res) => {
 
     res.status(201).json({ message: "Volunteers matched to the event successfully" });
   } catch (error) {
-    console.error("Error matching volunteers:", error);
+    console.error("MATCH ERROR:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

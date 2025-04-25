@@ -222,31 +222,3 @@ pre.prettyprint {
 .footer, .push {
   height: 48px;
 }
-
-.availability-checkboxes {
-  display: flex;
-  flex-direction: column; /* Stack checkboxes vertically */
-  gap: 5px; /* Add some spacing between checkboxes */
-  margin-top: 10px; /* Add some space above the checkboxes */
-}
-
-.availability-checkboxes div {
-  display: flex;
-  align-items: center; /* Align checkbox and label vertically */
-}
-
-.availability-checkboxes input[type="checkbox"] {
-  margin-right: 5px; /* Add some space between checkbox and label */
-}
-
-.form-group label {
-  display: block; /* Ensure labels are above their inputs */
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.error {
-  color: red;
-  font-size: 0.9em;
-  margin-top: 5px;
-}

@@ -7,7 +7,7 @@ import notificationRoutes from "./Routes/notificationRoutes.js";
 import profileRoutes from "./Routes/profileRoutes.js";
 import volunteersRoutes from "./Routes/volunteers.js"; 
 import volunteeraddRoutes from "./Routes/volunteeraddRoutes.js"; 
-import matchingRoutes from "./Routes/matching.js"; // Ensure this is correct
+import matchingRoutes from "./Routes/matching.js";
 import reportRoutes from "./Routes/reportRoutes.js";
 
 const app = express();
@@ -27,11 +27,13 @@ app.use("/", volunteeraddRoutes);
 app.use("/", matchingRoutes);
 app.use("/", reportRoutes);
 
-
 // Start the server
 const PORT = 3360;
-if (process.env.NODE_ENV !== 'test') {
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});}
 
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;
