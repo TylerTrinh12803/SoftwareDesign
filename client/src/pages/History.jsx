@@ -1,71 +1,96 @@
-import React from "react";
-import "../style/History.css"; // Import CSS file
+import React, { useEffect, useState } from "react";
+import "../style/History.css"; // Adjust path if needed
 
 
-const mockData = [
-  { 
-    eventName: "Community Clean-up", 
-    eventDescription: "A local park clean-up effort.", 
-    location: "Central Park", 
-    requiredSkills: "Teamwork, Physical Stamina", 
-    urgency: "High", 
-    eventDate: "2024-01-15", 
-    status: "Attended" 
-  },
-  { 
-    eventName: "Food Drive", 
-    eventDescription: "Sorting and distributing food donations.", 
-    location: "Local Shelter", 
-    requiredSkills: "Organization, Communication", 
-    urgency: "Medium", 
-    eventDate: "2024-02-10", 
-    status: "Missed" 
-  },
-  { 
-    eventName: "Animal Shelter Assistance", 
-    eventDescription: "Helping care for rescued animals.", 
-    location: "City Animal Shelter", 
-    requiredSkills: "Animal Care, Patience", 
-    urgency: "Low", 
-    eventDate: "2024-03-05", 
-    status: "Upcoming" 
-  }
-];
+function History({ userId }) {
+  const [history, setHistory] = useState([]);
 
-function History() {
+
+  useEffect(() => {
+    if (!userId) return;
+
+    fetch(`http://localhost:3360/history/${parseInt(userId)}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log("Fetched history:", data);
+        setHistory(data);
+      })
+      .catch(err => {
+        console.error("Failed to fetch history:", err);
+      });
+  }, [userId]);
+
+  
+
+  // Function to refresh history data (after leaving or joining an event)
+  const refreshHistory = () => {
+    fetch(`http://localhost:3360/history/${userId}`)
+      .then(res => res.json())
+      .then(data => setHistory(data));
+  };
+
+
+  // Handle leaving an event
+  const leaveEvent = (eventId) => {
+    fetch(`http://localhost:3360/unmatch-volunteer/${eventId}/${userId}`, {
+      method: "DELETE",
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || "Left the event.");
+        refreshHistory(); // Refresh the table
+      })
+      .catch(err => {
+        console.error("Error leaving event:", err);
+        alert("Could not leave the event.");
+      });
+  };
+
+
   return (
     <div className="history-page">
-    <div className="container">
-      <h2>Volunteer History</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Event Name</th>
-            <th>Event Description</th>
-            <th>Location</th>
-            <th>Required Skills</th>
-            <th>Urgency</th>
-            <th>Event Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {mockData.map((event, index) => (
-            <tr key={index}>
-              <td>{event.eventName}</td>
-              <td>{event.eventDescription}</td>
-              <td>{event.location}</td>
-              <td>{event.requiredSkills}</td>
-              <td>{event.urgency}</td>
-              <td>{event.eventDate}</td>
-              <td>{event.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      <div className="container">
+        <h2>Volunteer History</h2>
+        {history.length === 0 ? (
+          <p>You haven't joined any events yet.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Event Name</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Urgency</th>
+                <th>Event Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.map((event, index) => (
+                <tr key={index}>
+                  <td>{event.event_name}</td>
+                  <td>{event.description}</td>
+                  <td>{event.location}</td>
+                  <td>{event.urgency}</td>
+                  <td>{event.event_date}</td>
+                  <td>{event.status}</td>
+                  <td>
+                    {event.status === "Upcoming" && (
+                      <button onClick={() => leaveEvent(event.event_id)}>
+                        Leave Event
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }
+
 
 export default History;

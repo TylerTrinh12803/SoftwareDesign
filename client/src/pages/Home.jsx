@@ -78,10 +78,6 @@ const Home = () => {
         navigate("/");
     };
 
-    const handleNotificationClick = () => {
-        localStorage.setItem("notifications", "0");
-        setNotifications(0);
-    };
     const handleJoinEvent = async (eventId) => {
         const userId = user?.user_id;
         if (!userId) return alert("You must be logged in.");
@@ -102,6 +98,7 @@ const Home = () => {
         // Immediately reload the page
         window.location.href = window.location.href;
     };
+    
     
     // Admin-Only: Delete Event
     const handleDelete = async (id) => {
