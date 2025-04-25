@@ -81,10 +81,10 @@ function validateProfile(profile) {
         errors.skills = "Skills must be an array.";
     } else {
         skills.forEach((skill, index) => {
-            if (typeof skill !== "string") {
-                errors[`skills[${index}]`] = "Each skill must be a string.";
+            if (typeof skill !== "number") {
+                errors[`skills[${index}]`] = "Each skill must be a number (skill ID).";
             }
-        });
+        });        
     }
 
     // Preferences validation (optional)
