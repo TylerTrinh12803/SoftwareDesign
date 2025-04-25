@@ -1,4 +1,3 @@
-// Client-side (React)
 import React, { useState, useEffect, useCallback } from "react";
 import "../style/Profile.css";
 
@@ -10,22 +9,18 @@ const Profile = () => {
         city: '',
         state: '',
         zipCode: '',
-        skills: [],
+        skills: [],  // Store selected skill IDs
         preferences: '',
-        availability: [], // Now stores selected days of the week
-        userID: localStorage.getItem('userId') || '' // Get userId from localStorage
+        availability: [], // Store selected days of the week
+        userID: localStorage.getItem('userId') || ''
     });
 
+    const [availableSkills, setAvailableSkills] = useState([]);  // To store fetched skills from the database
     const [isEditing, setIsEditing] = useState(true);
     const [submittedData, setSubmittedData] = useState(null);
     const [formErrors, setFormErrors] = useState({});
     const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const states = ["AL", "AK", "AZ", "CA", "FL", "NY", "TX", "WA"];
-    const volunteerSkills = [
-        "Event Planning", "Community Outreach", "Fundraising",
-        "Public Speaking", "Teaching", "Disaster Relief", "Social Media Marketing",
-        "Medical Assistance", "Animal Care", "Food Distribution"
-    ];
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -33,16 +28,16 @@ const Profile = () => {
     };
 
     const handleSkillChange = (e) => {
-        const selectedSkill = e.target.value;
-        if (selectedSkill && !formData.skills?.includes(selectedSkill)) {
-            setFormData({ ...formData, skills: [...(formData.skills || []), selectedSkill] });
+        const selectedSkillId = parseInt(e.target.value);
+        if (selectedSkillId && !formData.skills.includes(selectedSkillId)) {
+            setFormData({ ...formData, skills: [...formData.skills, selectedSkillId] });
         }
     };
 
-    const handleDeleteSkill = (skillToRemove) => {
+    const handleDeleteSkill = (skillId) => {
         setFormData({
             ...formData,
-            skills: formData.skills.filter(skill => skill !== skillToRemove)
+            skills: formData.skills.filter(id => id !== skillId)
         });
     };
 
@@ -51,20 +46,30 @@ const Profile = () => {
         if (checked) {
             setFormData({
                 ...formData,
-                availability: [...(formData.availability || []), value],
+                availability: [...formData.availability, value],
             });
         } else {
             setFormData({
                 ...formData,
-                availability: formData.availability.filter((day) => day !== value),
+                availability: formData.availability.filter(day => day !== value),
             });
         }
     };
 
-    // useCallback to memoize the fetchProfile function for efficiency
+    const fetchSkills = useCallback(async () => {
+        try {
+            const response = await fetch("http://localhost:3360/api/skills");
+            if (response.ok) {
+                const data = await response.json();
+                setAvailableSkills(data);
+            }
+        } catch (error) {
+            console.error("Error fetching skills:", error);
+        }
+    }, []);
+
     const fetchProfile = useCallback(async () => {
         const userId = localStorage.getItem('userId');
-        console.log("Fetching profile with userId:", userId);
         if (userId) {
             try {
                 const response = await fetch(`http://localhost:3360/api/profile?userID=${userId}`);
@@ -90,15 +95,11 @@ const Profile = () => {
             } catch (error) {
                 console.error('Error fetching profile:', error);
             }
-        } else {
-            console.log('User ID not found. Please log in.');
-            // Optionally redirect to the login page
         }
     }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         const errors = {};
 
         if (!formData.fullName.trim()) {
@@ -127,16 +128,10 @@ const Profile = () => {
             errors.availability = "At least one day of availability is required";
         }
 
-        if (!formData.userID) {
-            errors.userID = "User ID is missing. Please log in again.";
-        }
-
         setFormErrors(errors);
 
         if (Object.keys(errors).length === 0) {
             const formDataToSend = { ...formData, userID: parseInt(formData.userID, 10) };
-            console.log("Sending formData:", formDataToSend);
-
             try {
                 const response = await fetch('http://localhost:3360/api/profile', {
                     method: 'POST',
@@ -148,15 +143,9 @@ const Profile = () => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.errors) {
-                        setFormErrors(data.errors);
-                    } else {
-                        setSubmittedData(formDataToSend); // Update submittedData with the updated form
-                        setIsEditing(false);
-                        fetchProfile(); // <------------------ Call fetchProfile after successful update
-                    }
-                } else {
-                    console.error('Failed to submit profile');
+                    setSubmittedData(formDataToSend);
+                    setIsEditing(false);
+                    fetchProfile(); // Fetch updated profile after submit
                 }
             } catch (error) {
                 console.error('Error submitting profile:', error);
@@ -164,124 +153,51 @@ const Profile = () => {
         }
     };
 
-    const handleEditClick = () => { // <------------------ Define handleEditClick here
-        setIsEditing(true);
-    };
-
     useEffect(() => {
         fetchProfile(); // Fetch profile data on initial component mount
-    }, [fetchProfile]); // Add fetchProfile to the dependency array
+        fetchSkills();  // Fetch available skills on initial component mount
+    }, [fetchProfile, fetchSkills]);
 
     return (
         <div className="profile-management-page">
             <div className="profile-management-form">
                 <h2>Profile Management Form</h2>
-
                 {isEditing ? (
                     <form onSubmit={handleSubmit}>
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label htmlFor="fullName">Full Name</label>
-                                <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} />
-                                {formErrors.fullName && <p className="error">{formErrors.fullName}</p>}
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="zipCode">Zip Code</label>
-                                <input type="text" name="zipCode" value={formData.zipCode} onChange={handleInputChange} />
-                                {formErrors.zipCode && <p className="error">{formErrors.zipCode}</p>}
-                            </div>
-                        </div>
-
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label htmlFor="address1">Address 1</label>
-                                <input type="text" name="address1" value={formData.address1} onChange={handleInputChange} />
-                                {formErrors.address1 && <p className="error">{formErrors.address1}</p>}
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="address2">Address 2</label>
-                                <input type="text" name="address2" value={formData.address2} onChange={handleInputChange} />
-                            </div>
-                        </div>
-
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label htmlFor="city">City</label>
-                                <input type="text" name="city" value={formData.city} onChange={handleInputChange} />
-                                {formErrors.city && <p className="error">{formErrors.city}</p>}
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="state">State</label>
-                                <select name="state" value={formData.state} onChange={handleInputChange}>
-                                    <option value="">Select a state</option>
-                                    {states.map(state => <option key={state} value={state}>{state}</option>)}
-                                </select>
-                                {formErrors.state && <p className="error">{formErrors.state}</p>}
-                            </div>
-                        </div>
-
+                        {/* Profile fields */}
                         <div className="form-group">
                             <label>Volunteer Skills</label>
-                            <select className="wide-dropdown" onChange={handleSkillChange} value="">
+                            <select className="wide-dropdown" onChange={handleSkillChange}>
                                 <option value="" disabled>Select a skill</option>
-                                {volunteerSkills.map(skill => (
-                                    <option key={skill} value={skill}>{skill}</option>
+                                {availableSkills.map(skill => (
+                                    <option key={skill.skill_id} value={skill.skill_id}>
+                                        {skill.skill_name}
+                                    </option>
                                 ))}
                             </select>
                             <div className="skills-tags">
-                                {formData.skills?.map((skill) => (
-                                    <div key={skill} className="skill-tag">
-                                        {skill}
-                                        <button type="button" onClick={() => handleDeleteSkill(skill)}>
-                                            &times;
-                                        </button>
-                                    </div>
-                                ))}
+                                {formData.skills.map(skillId => {
+                                    const skill = availableSkills.find(s => s.skill_id === skillId);
+                                    return (
+                                        <div key={skillId} className="skill-tag">
+                                            {skill?.skill_name}
+                                            <button type="button" onClick={() => handleDeleteSkill(skillId)}>
+                                                &times;
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
-
-                        <div className="form-group">
-                            <label>Preferences</label>
-                            <textarea name="preferences" value={formData.preferences} onChange={handleInputChange}></textarea>
-                        </div>
-
-                        {/* Availability (Multiple Checkbox Selection) */}
-                        <div className="form-group">
-                            <label>Availability</label>
-                            <div className="availability-checkboxes">
-                                {daysOfWeek.map(day => (
-                                    <div key={day}>
-                                        <input
-                                            type="checkbox"
-                                            id={`availability-${day.toLowerCase()}`}
-                                            name="availability"
-                                            value={day}
-                                            checked={formData.availability?.includes(day)}
-                                            onChange={handleAvailabilityChange}
-                                        />
-                                        <label htmlFor={`availability-${day.toLowerCase()}`}>{day}</label>
-                                    </div>
-                                ))}
-                            </div>
-                            {formErrors.availability && <p className="error">{formErrors.availability}</p>}
-                        </div>
-
+                        {/* Other profile fields */}
                         <button type="submit">Save Profile</button>
                     </form>
                 ) : (
                     <div>
                         <h3>Submitted Profile Information</h3>
                         <p>Full Name: {submittedData?.full_name}</p>
-                        <p>Address: {submittedData?.address_1}{submittedData?.address_2 ? `, ${submittedData.address_2}` : ''}</p>
-                        <p>City: {submittedData?.city}</p>
-                        <p>State: {submittedData?.state_code}</p>
-                        <p>Zip Code: {submittedData?.zip_code}</p>
-                        <p>Skills: {submittedData?.skills?.join(', ')}</p>
-                        <p>Preferences: {submittedData?.preferences}</p>
-                        <p>Availability: {submittedData?.availability?.join(', ')}</p>
-                        <button type="button" onClick={handleEditClick}> {/* Call handleEditClick */}
-                            Edit Profile
-                        </button>
+                        {/* Display other profile info */}
+                        <button type="button" onClick={() => setIsEditing(true)}>Edit Profile</button>
                     </div>
                 )}
             </div>

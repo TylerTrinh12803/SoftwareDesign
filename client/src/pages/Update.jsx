@@ -287,7 +287,7 @@ const Update = () => {
               <option value="">Select Volunteers</option>
               {volunteers.map((volunteer) => (
                 <option key={volunteer.id} value={volunteer.id}>
-                  {volunteer.name}
+                  {volunteer.email}
                 </option>
               ))}
             </select>

@@ -25,9 +25,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Dismiss all notifications (mark as read)
+// Dismiss all notifications (delete all for user)
 router.delete("/dismiss-all/:userId", async (req, res) => {
-  const { userId } = req.params; // Get user ID from request params
+  const { userId } = req.params;
   try {
     const [result] = await db.query(
       "DELETE FROM notification WHERE volunteer_id = ?", 
@@ -45,11 +45,12 @@ router.delete("/dismiss-all/:userId", async (req, res) => {
   }
 });
 
-
-// Dismiss a single notification
+// Dismiss (delete) a single notification
 router.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
-  try {
+  if (isNaN(id)) {
+    return res.status(400).json({ message: "Invalid notification ID" });
+  }  try {
     const [result] = await db.query("DELETE FROM notification WHERE id = ?", [id]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Notification not found" });
@@ -60,5 +61,6 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 export default router;
