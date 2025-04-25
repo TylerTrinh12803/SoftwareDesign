@@ -1,12 +1,12 @@
 import express from "express";
 import request from "supertest";
 import { expect } from "chai";
-import eventRoutes from "../Routes/eventRoutes.js"; // Adjust path if needed
+import reportRoutes from "../Routes/reportRoutes.js";// Adjust path if needed
 import db from "../config/db.js";
 
 const app = express();
 app.use(express.json());
-app.use("/", eventRoutes);
+app.use("/", reportRoutes);
 
 describe("Event Routes Integration", () => {
   let testEventId;
