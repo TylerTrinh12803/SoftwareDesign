@@ -48,7 +48,9 @@ router.delete("/dismiss-all/:userId", async (req, res) => {
 // Dismiss (delete) a single notification
 router.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
-  try {
+  if (isNaN(id)) {
+    return res.status(400).json({ message: "Invalid notification ID" });
+  }  try {
     const [result] = await db.query("DELETE FROM notification WHERE id = ?", [id]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Notification not found" });

@@ -13,6 +13,12 @@ router.post("/skills", async (req, res) => {
   }
 
   try {
+    // Check if the skill already exists
+    const [existingSkill] = await db.query("SELECT * FROM skills WHERE skill_name = ?", [skill_name]);
+    if (existingSkill.length > 0) {
+      return res.status(400).json({ message: "Skill already exists." });
+    }
+
     const [result] = await db.query("INSERT INTO skills (skill_name) VALUES (?)", [skill_name]);
     console.log("Skill added successfully:", result.insertId);  // Debugging Log
     res.status(201).json({ message: "Skill added successfully", skill_id: result.insertId });
@@ -21,7 +27,6 @@ router.post("/skills", async (req, res) => {
     res.status(500).json({ message: "Database error" });
   }
 });
-
 
 // Get All Skills
 router.get("/skills", async (req, res) => {
@@ -34,6 +39,7 @@ router.get("/skills", async (req, res) => {
   }
 });
 
+// Delete a Skill
 router.delete("/skills/:id", async (req, res) => {
   const { id } = req.params;
   if (isNaN(Number(id))) {
@@ -50,7 +56,6 @@ router.delete("/skills/:id", async (req, res) => {
     res.status(500).json({ message: "Database error" });
   }
 });
-
 
 // Create a New Event with Skills
 router.post("/events", async (req, res) => {
@@ -81,12 +86,19 @@ router.post("/events", async (req, res) => {
 
     // Assign skills to event
     for (const skill_id of skills) {
-      await db.query(
-        "INSERT INTO event_skills (event_id, skill_id) VALUES (?, ?)",
-        [event_id, skill_id]
-      );
+      if (!skill_id) {
+        return res.status(400).json({ message: "Invalid skill ID." });
+      }
+
+      // Check if skill_id exists before insertion
+      const [skillExists] = await db.query("SELECT * FROM skills WHERE skill_id = ?", [skill_id]);
+      if (skillExists.length === 0) {
+        return res.status(400).json({ message: `Skill with ID ${skill_id} not found.` });
+      }
+
+      await db.query("INSERT INTO event_skills (event_id, skill_id) VALUES (?, ?)", [event_id, skill_id]);
     }
-    
+
     res.status(201).json({ message: "Event created successfully", event_id });
   } catch (error) {
     console.error("Error creating event:", error);
@@ -94,6 +106,7 @@ router.post("/events", async (req, res) => {
   }
 });
 
+// Get All Events
 router.get("/events", async (req, res) => {
   try {
     const [events] = await db.query(
@@ -110,7 +123,7 @@ router.get("/events", async (req, res) => {
            WHEN e.urgency = 'medium' THEN 2 
            WHEN e.urgency = 'low' THEN 3 
          END, 
-         e.event_date ASC` // Second order by event_date to sort within urgency
+         e.event_date ASC`
     );
 
     res.json(events);
@@ -120,6 +133,7 @@ router.get("/events", async (req, res) => {
   }
 });
 
+// Delete an Event
 router.delete("/events/:id", async (req, res) => {
   const { id } = req.params;
   if (isNaN(Number(id))) {
@@ -134,6 +148,7 @@ router.delete("/events/:id", async (req, res) => {
   }
 });
 
+// Get an Event by ID
 router.get("/events/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -171,7 +186,7 @@ router.get("/events/:id", async (req, res) => {
   }
 });
 
-
+// Update an Event
 router.put("/events/:id", async (req, res) => {
   const { id } = req.params;
   const { event_name, description, location, urgency, event_date, skills } = req.body;
@@ -181,7 +196,6 @@ router.put("/events/:id", async (req, res) => {
     const eventDateObj = new Date(event_date);
     const today = new Date();
 
-    // Set time to midnight to compare only the date, not the time
     today.setHours(0, 0, 0, 0);
     eventDateObj.setHours(0, 0, 0, 0);
 
@@ -198,26 +212,25 @@ router.put("/events/:id", async (req, res) => {
     // Remove old skills and insert new ones
     await db.query("DELETE FROM event_skills WHERE event_id = ?", [id]);
 
-    if (skills.length > 0) {
-      for (const skill_id of skills) {
-        if (!skill_id) {
-          console.warn("Skipping invalid skill_id:", skill_id);
-          continue;
-        }
-    
-        await db.query(
-          "INSERT INTO event_skills (event_id, skill_id) VALUES (?, ?)",
-          [id, skill_id]
-        );
+    for (const skill_id of skills) {
+      if (!skill_id) {
+        return res.status(400).json({ message: "Invalid skill ID." });
       }
-    } 
-    
+
+      // Check if skill_id exists
+      const [skillExists] = await db.query("SELECT * FROM skills WHERE skill_id = ?", [skill_id]);
+      if (skillExists.length === 0) {
+        return res.status(400).json({ message: `Skill with ID ${skill_id} not found.` });
+      }
+
+      await db.query("INSERT INTO event_skills (event_id, skill_id) VALUES (?, ?)", [id, skill_id]);
+    }
+
     res.json({ message: "Event updated successfully!" });
   } catch (error) {
     console.error("Error updating event:", error);
     res.status(500).json({ message: "Database error" });
   }
 });
-
 
 export default router;

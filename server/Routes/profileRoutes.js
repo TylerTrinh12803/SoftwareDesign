@@ -1,4 +1,3 @@
-// Server-side (profileRoutes.js)
 import express from "express";
 import db from "../config/db.js"; // Import the database connection
 import dotenv from "dotenv";
@@ -116,10 +115,10 @@ function validateProfile(profile) {
 // POST /profile: Save or update the profile data
 router.post("/", async (req, res) => {
     const profile = req.body;
-    const errors = validateProfile(profile); // Call validateProfile here
+    const errors = validateProfile(profile); // Validate profile before saving
 
     if (errors) {
-        return res.status(400).json({ errors }); // Send validation errors
+        return res.status(400).json({ errors });
     }
 
     const {
@@ -131,7 +130,7 @@ router.post("/", async (req, res) => {
         zipCode,
         skills,
         preferences,
-        availability, // Array of days
+        availability, 
         userID,
     } = profile;
 
@@ -146,9 +145,9 @@ router.post("/", async (req, res) => {
                 city,
                 state,
                 zipCode,
-                skills,             // Store the array directly
+                skills,
                 preferences,
-                availability,     // Store the array directly
+                availability,
             ]
         );
         res.status(200).json({ message: "Profile saved successfully" });
@@ -160,7 +159,6 @@ router.post("/", async (req, res) => {
 
 // GET /profile: Retrieve the profile data
 router.get("/", async (req, res) => {
-    console.log("Attempting to retrieve profile data");
     const userID = req.query.userID;
     const parsedUserID = parseInt(userID, 10);
 
@@ -176,7 +174,6 @@ router.get("/", async (req, res) => {
 
         if (rows.length > 0) {
             const profile = rows[0];
-            console.log("Profile data retrieved:", profile);
             res.json(profile); // Send the profile object directly
         } else {
             res.status(404).json({ message: "Profile not found" });

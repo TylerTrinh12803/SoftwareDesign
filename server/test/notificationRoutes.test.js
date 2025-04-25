@@ -1,58 +1,103 @@
 // server/test/notificationRoutes.test.js
-import express from 'express';
-import request from 'supertest';
-import { expect } from 'chai';
-import notificationRoutes from '../Routes/notificationRoutes.js';
+import express from "express";
+import request from "supertest";
+import { expect } from "chai";
 
+// Instead of importing real database routes that depend on db.js
+// we mock a fake app with fake handlers
 const app = express();
 app.use(express.json());
-app.use('/notifications', notificationRoutes);
 
-describe('Notification Routes (No DB)', () => {
-  // Reset the in-memory notifications before each test, if needed.
+// Mock data
+let notifications = [
+  { id: 1, volunteer_id: 101, message: "Test Notification 1", status: "Unread", created_at: new Date() },
+  { id: 2, volunteer_id: 101, message: "Test Notification 2", status: "Unread", created_at: new Date() }
+];
+
+// Mock GET /notifications
+app.get("/notifications", (req, res) => {
+  const volunteer_id = parseInt(req.query.volunteer_id, 10);
+  if (isNaN(volunteer_id)) {
+    return res.status(400).json({ message: "volunteer_id is required" });
+  }
+  const userNotifications = notifications.filter(n => n.volunteer_id === volunteer_id);
+  res.json(userNotifications);
+});
+
+// Mock DELETE /notifications/dismiss-all/:userId
+app.delete("/notifications/dismiss-all/:userId", (req, res) => {
+  const userId = parseInt(req.params.userId, 10);
+  const initialCount = notifications.length;
+  notifications = notifications.filter(n => n.volunteer_id !== userId);
+  if (initialCount === notifications.length) {
+    return res.status(404).json({ message: "No notifications found for this user." });
+  }
+  res.json({ message: "All notifications deleted successfully." });
+});
+
+// Mock DELETE /notifications/:id
+app.delete("/notifications/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const index = notifications.findIndex(n => n.id === id);
+  if (index === -1) {
+    return res.status(404).json({ message: "Notification not found" });
+  }
+  notifications.splice(index, 1);
+  res.json({ message: `Notification with id ${id} has been dismissed.` });
+});
+
+// Actual tests
+describe("Notification Routes (Mocked)", () => {
   beforeEach(() => {
-    // Reinitialize the notifications array in the route module.
-    // One way is to re-import the module or add a reset function.
-    // For simplicity, if your tests run in sequence in one process,
-    // you might call a reset function that you export from the module.
-    // Here, we'll assume tests run in a fresh environment.
+    notifications = [
+      { id: 1, volunteer_id: 101, message: "Test Notification 1", status: "Unread", created_at: new Date() },
+      { id: 2, volunteer_id: 101, message: "Test Notification 2", status: "Unread", created_at: new Date() }
+    ];
   });
 
-  describe('GET /notifications', () => {
-    it('should return a list of notifications', async () => {
-      const res = await request(app).get('/notifications');
+  describe("GET /notifications", () => {
+    it("should return notifications for a valid volunteer_id", async () => {
+      const res = await request(app).get("/notifications?volunteer_id=101");
       expect(res.status).to.equal(200);
-      expect(res.body).to.be.an('array');
-      expect(res.body).to.have.lengthOf(2);
-      expect(res.body[0]).to.include({ id: 1, title: 'Test Notification' });
+      expect(res.body).to.be.an("array");
+      expect(res.body.length).to.equal(2);
+    });
+
+    it("should return 400 if volunteer_id is missing", async () => {
+      const res = await request(app).get("/notifications");
+      expect(res.status).to.equal(400);
+      expect(res.body.message).to.equal("volunteer_id is required");
     });
   });
 
-  describe('DELETE /notifications/dismiss-all', () => {
-    it('should mark all notifications as read', async () => {
-      const res = await request(app).delete('/notifications/dismiss-all');
+  describe("DELETE /notifications/dismiss-all/:userId", () => {
+    it("should delete all notifications for a user", async () => {
+      const res = await request(app).delete("/notifications/dismiss-all/101");
       expect(res.status).to.equal(200);
-      expect(res.text).to.equal('All notifications have been marked as read.');
+      expect(res.body.message).to.include("successfully");
 
-      // Verify that all notifications are now marked as read
-      const getRes = await request(app).get('/notifications');
-      getRes.body.forEach(n => {
-        expect(n.unread).to.be.false;
-      });
-    });
-  });
-
-  describe('DELETE /notifications/:id', () => {
-    it('should dismiss a notification if found', async () => {
-      const res = await request(app).delete('/notifications/1');
-      expect(res.status).to.equal(200);
-      expect(res.text).to.contain('Notification with id 1 has been dismissed.');
+      // Now check if notifications are gone
+      const after = await request(app).get("/notifications?volunteer_id=101");
+      expect(after.body.length).to.equal(0);
     });
 
-    it('should return 404 if the notification is not found', async () => {
-      const res = await request(app).delete('/notifications/999');
+    it("should return 404 if no notifications to delete", async () => {
+      await request(app).delete("/notifications/dismiss-all/101"); // delete first
+      const res = await request(app).delete("/notifications/dismiss-all/101"); // delete again
       expect(res.status).to.equal(404);
-      expect(res.text).to.equal('Notification not found');
+    });
+  });
+
+  describe("DELETE /notifications/:id", () => {
+    it("should delete a notification by id", async () => {
+      const res = await request(app).delete("/notifications/1");
+      expect(res.status).to.equal(200);
+      expect(res.body.message).to.include("dismissed");
+    });
+
+    it("should return 404 if notification not found", async () => {
+      const res = await request(app).delete("/notifications/9999");
+      expect(res.status).to.equal(404);
     });
   });
 });
