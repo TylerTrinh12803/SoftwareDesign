@@ -6,6 +6,7 @@ import eventRoutes from "./Routes/eventRoutes.js";
 import notificationRoutes from "./Routes/notificationRoutes.js";
 import profileRoutes from "./Routes/profileRoutes.js";
 import volunteersRoutes from "./Routes/volunteers.js"; 
+import volunteeraddRoutes from "./Routes/volunteeraddRoutes.js"; 
 import matchingRoutes from "./Routes/matching.js"; // Ensure this is correct
 import reportRoutes from "./Routes/reportRoutes.js";
 
@@ -22,6 +23,7 @@ app.use(eventRoutes);
 app.use(notificationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use("/", volunteersRoutes);
+app.use("/", volunteeraddRoutes);
 app.use("/", matchingRoutes);
 app.use("/", reportRoutes);
 

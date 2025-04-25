@@ -16,6 +16,7 @@ function ProfileTabs() {
     if (role === "admin") {
       setIsAdmin(true);
     }
+    const userId = localStorage.getItem("userId");
   }, []);
 
   return (
@@ -64,7 +65,7 @@ function ProfileTabs() {
         <div className="tab-content">
           <div className="content-box">
             {activeTab === "profile" && <Profile />}
-            {activeTab === "history" && <History />}
+            {activeTab === "history" && <History userId={localStorage.getItem("userId")} />}
             {activeTab === "users" && isAdmin && <Users />}
             {activeTab === "reports" && isAdmin && <Report />} {/* ✅ Render Report */}
           </div>

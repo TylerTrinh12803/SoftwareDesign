@@ -265,6 +265,9 @@ const Update = () => {
                 <p>No skills selected</p>
               )}
             </div>
+            <button type="button" onClick={() => setShowSkillModal(true)}>
+              Can't find skill? Add Skill
+            </button>
             <button type="submit">Update Event</button>
           </form>
         </div>

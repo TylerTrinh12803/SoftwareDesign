@@ -46,20 +46,32 @@ router.get("/volunteers", async (req, res) => {
         return res.status(500).json({ message: "Unexpected server error", error: e.message });
     }
 });
-
 router.get("/history/:userId", async (req, res) => {
-  const { userId } = req.params;
-  try {
-      const [rows] = await db.query(
-          "SELECT event_id FROM history_table WHERE user_id = ?",
-          [userId]
-      );
+    const { userId } = req.params;
+    try {
+      const [rows] = await db.query(`
+        SELECT 
+            e.event_id,
+            e.event_name,
+            e.description,
+            e.location,
+            e.urgency,
+            e.event_date,
+            h.participated AS status
+            FROM history_table h
+            JOIN events e ON h.event_id = e.event_id
+            WHERE h.user_id = ?
+
+      `, [userId]);
+  
+      console.log("Fetched rows:", rows); // Add this for debugging
       res.json(rows);
-  } catch (error) {
+    } catch (error) {
       console.error("Fetch history error:", error);
       res.status(500).json({ message: "Error fetching joined events" });
-  }
-});
+    }
+  });
+  
 
 router.delete("/history/:userId/:eventId", async (req, res) => {
   const { userId, eventId } = req.params;
