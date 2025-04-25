@@ -185,6 +185,7 @@ const MatchingAdd = () => {
       setMessage("Please select a volunteer and an event.");
       return;
     }
+  
     try {
       const response = await fetch("http://localhost:3360/match-volunteer", {
         method: "POST",
@@ -194,19 +195,22 @@ const MatchingAdd = () => {
           event_id: selectedEvent,
         }),
       });
-
+  
+      const data = await response.json(); // <-- Important: read the server's message!
+  
       if (response.ok) {
-        setMessage("Volunteer successfully matched to the event!");
+        alert(data.message || "Volunteer matched successfully!"); // ✅ Success popup
         setSelectedVolunteers([]);
         setSelectedEvent("");
       } else {
-        setMessage("Failed to match volunteer.");
+        alert(data.message || "Failed to match volunteer."); // ⚠️ Error popup
       }
     } catch (error) {
       console.error("Error matching volunteer:", error);
-      setMessage("Server error while matching volunteer.");
+      alert("Server error while matching volunteer."); // ⚠️ Server error popup
     }
   };
+  
 
   return (
     <div className="page-container">
@@ -280,7 +284,7 @@ const MatchingAdd = () => {
             <option value="">Select a Volunteer</option>
               {volunteers.map((volunteer) => (
             <option key={volunteer.user_id} value={volunteer.user_id}>
-              {volunteer.full_name} {/* Now displaying full name */}
+              {volunteer.email} {/* Now displaying full name */}
             </option>
             ))}
           </select>

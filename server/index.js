@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(authRoutes);
 app.use(userRoutes);
 app.use(eventRoutes);
-app.use(notificationRoutes);
+app.use("/notifications", notificationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use("/", volunteersRoutes);
 app.use("/", volunteeraddRoutes);

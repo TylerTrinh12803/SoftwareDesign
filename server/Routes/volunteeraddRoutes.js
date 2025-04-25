@@ -34,16 +34,27 @@ router.post("/match-volunteer", async (req, res) => {
   }
 
   try {
-    // Insert each volunteer into the history_table
     const values = volunteers.map((volunteer_id) => [event_id, volunteer_id, 'Upcoming']);
-    await db.query("INSERT INTO history_table (event_id, user_id, participated) VALUES ?", [values]);
 
-    res.status(201).json({ message: "Volunteers matched to the event successfully" });
+    await db.query(
+      "INSERT INTO history_table (event_id, user_id, participated) VALUES ?",
+      [values]
+    );
+
+    res.status(201).json({ message: "Volunteer matched to event successfully" });
+
   } catch (error) {
     console.error("Error matching volunteers:", error);
-    res.status(500).json({ message: "Server error" });
+
+    // ✅ If duplicate entry error
+    if (error.code === 'ER_DUP_ENTRY') {
+      res.status(200).json({ message: "This volunteer is already attending this event" });
+    } else {
+      res.status(500).json({ message: "Server error" });
+    }
   }
 });
+
 
 // DELETE /unmatch-volunteer/:event_id/:volunteer_id - Remove a match
 router.delete("/unmatch-volunteer/:event_id/:volunteer_id", async (req, res) => {
@@ -62,6 +73,20 @@ router.delete("/unmatch-volunteer/:event_id/:volunteer_id", async (req, res) => 
     res.json({ message: "Volunteer unmatched from event successfully" });
   } catch (error) {
     console.error("Error unmatching volunteer:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/notifications", async (req, res) => {
+  const { volunteer_id } = req.query;
+  try {
+    const [notifications] = await db.query(
+      "SELECT * FROM notification WHERE volunteer_id = ? ORDER BY created_at DESC",
+      [volunteer_id]
+    );
+    res.json(notifications);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
